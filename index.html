@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Login</title>
+  <title>Crypted Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: black; color: white; }
@@ -119,9 +119,9 @@
       <!-- Profile Box -->
       <div class="mt-4 bg-white/5 p-3 rounded-lg flex flex-col gap-2">
         <div class="flex items-center gap-2">
-          <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="h-10 w-10 rounded-md">
+          <img id="user-avatar" src="" class="h-10 w-10 rounded-md">
           <div class="flex flex-col">
-            <span id="user-name" class="text-white font-semibold text-sm">Crypted</span>
+            <span id="user-name" class="text-white font-semibold text-sm"></span>
           </div>
         </div>
         <div class="w-full bg-white/20 rounded-full h-2 relative">
@@ -142,12 +142,14 @@
   const REDIRECT_URI = "https://crypted-nu.vercel.app/dashboard"; 
   const SCOPE = "identify";
 
-  // Check if Discord redirected back with code
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
 
   async function loginWithDiscord() {
-    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
+    // For now, simulate login directly
+    login();
+    document.getElementById('user-name').textContent = "ni99er"; // Discord username
+    document.getElementById('user-avatar').src = "https://cdn.discordapp.com/avatars/81384788765712384/a_7c9f8d4e5f6b7f7c8d9e10f.gif"; // Discord avatar
   }
 
   async function fetchDiscordUser(token) {
@@ -159,10 +161,10 @@
 
   async function handleOAuthLogin() {
     if (!code) return;
-    const token = "SIMULATED_TOKEN"; // Replace with real token from backend
+    const token = "SIMULATED_TOKEN";
     const user = await fetchDiscordUser(token);
     login();
-    document.getElementById('user-name').textContent = `Crypted`;
+    document.getElementById('user-name').textContent = user.username;
     document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
   }
 
