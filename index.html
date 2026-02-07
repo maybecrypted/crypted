@@ -136,6 +136,9 @@ pre.shine-text {
 </div>
 
 <script>
+  // Set the URL to /login on page load
+  history.replaceState(null, '', '/login');
+
   function login() {
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('dashboard-page').classList.remove('hidden');
@@ -145,6 +148,7 @@ pre.shine-text {
   function logout() {
     document.getElementById('dashboard-page').classList.add('hidden');
     document.getElementById('login-page').classList.remove('hidden');
+    history.replaceState(null, '', '/login');
   }
 
   function goToPage(page) {
@@ -172,12 +176,13 @@ pre.shine-text {
     }
   }
 
-  // Handle browser back/forward buttons
   window.addEventListener('popstate', () => {
     const path = window.location.pathname.replace('/', '');
     if (path) goToPage(path);
+    else history.replaceState(null, '', '/login');
   });
 </script>
+
 
 </body>
 </html>
