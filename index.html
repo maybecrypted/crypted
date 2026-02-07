@@ -101,37 +101,37 @@ pre.shine-text {
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto">
     <div class="mb-3">
       <div class="flex items-center space-x-3 p-1 pb-4">
-        <img src="./assets/img/logo.png" class="h-8 rounded-md">
+        <img src="" class="h-8 rounded-md">
         <span class="self-center text-2xl font-semibold whitespace-nowrap">Immortal</span>
       </div>
     </div>
     <nav class="space-y-2 mb-auto">
-      <div onclick="alert('Dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" class="sidebar-icon">
+      <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon">
         Dashboard
       </div>
-      <div onclick="alert('VIP Server')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" class="sidebar-icon">
+      <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon">
         VIP Server
       </div>
-      <div onclick="alert('Hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="https://cdn-icons-png.flaticon.com/512/25/25284.png" class="sidebar-icon">
+      <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon">
         Hyperlink
       </div>
-      <div onclick="alert('Settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="https://cdn-icons-png.flaticon.com/512/2099/2099058.png" class="sidebar-icon">
+      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon">
         Settings
       </div>
       <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828479.png" class="sidebar-icon">
+        <img src="" class="sidebar-icon">
         Log Out
       </div>
     </nav>
   </div>
 
   <!-- Page content -->
-  <div class="ml-64 relative z-10 flex items-center justify-center h-full">
-    <h1 class="text-white text-4xl font-bold">Radial Gradient Background</h1>
+  <div id="page-content" class="ml-64 relative z-10 flex items-center justify-center h-full">
+    <h1 class="text-white text-4xl font-bold">Welcome to Dashboard</h1>
   </div>
 </div>
 
@@ -139,12 +139,44 @@ pre.shine-text {
   function login() {
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('dashboard-page').classList.remove('hidden');
+    goToPage('dashboard');
   }
 
   function logout() {
     document.getElementById('dashboard-page').classList.add('hidden');
     document.getElementById('login-page').classList.remove('hidden');
   }
+
+  function goToPage(page) {
+    const content = document.getElementById('page-content');
+    switch(page) {
+      case 'dashboard':
+        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Welcome to Dashboard</h1>';
+        history.pushState(null, '', '/dashboard');
+        break;
+      case 'vip-server':
+        content.innerHTML = '<h1 class="text-white text-4xl font-bold">VIP Server Page</h1>';
+        history.pushState(null, '', '/vip-server');
+        break;
+      case 'hyperlink':
+        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Hyperlink Page</h1>';
+        history.pushState(null, '', '/hyperlink');
+        break;
+      case 'settings':
+        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Settings Page</h1>';
+        history.pushState(null, '', '/settings');
+        break;
+      default:
+        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Unknown Page</h1>';
+        break;
+    }
+  }
+
+  // Handle browser back/forward buttons
+  window.addEventListener('popstate', () => {
+    const path = window.location.pathname.replace('/', '');
+    if (path) goToPage(path);
+  });
 </script>
 
 </body>
