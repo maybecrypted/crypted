@@ -150,7 +150,7 @@
     const token = "SIMULATED_TOKEN"; // Replace with real token from backend
     const user = await fetchDiscordUser(token);
     login();
-    document.getElementById('user-name').textContent = `${user.username}#${user.discriminator}`;
+    document.getElementById('user-name').textContent = `Crypted`;
     document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
   }
 
