@@ -45,7 +45,7 @@
       <span>
         <pre class="shine-text whitespace-pre overflow-x-auto p-2 rounded-lg bg-black/50 mx-auto" style="font-family: monospace; font-size: 8px; line-height: 1.1; max-width: 100%;">
                                            /$$                     /$$
-                                          | $$                    | $$
+                                          | $$                    | $$ 
   /$$$$$$$  /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$
  /$$_____/ /$$__  $$| $$  | $$ /$$__  $$|_  $$_/   /$$__  $$ /$$__  $$
 | $$      | $$  \__/| $$  | $$| $$  \ $$  | $$    | $$$$$$$$| $$  | $$
@@ -77,12 +77,6 @@
   <div class="absolute top-0 -z-20 h-screen w-full bg-[radial-gradient(ellipse_60%_60%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto">
-    <div class="mb-3">
-      <div class="flex items-center space-x-3 p-1 pb-4">
-        <img id="user-avatar" src="" class="h-8 w-8 rounded-md">
-        <span id="user-name" class="self-center text-2xl font-semibold whitespace-nowrap">Crypted</span>
-      </div>
-    </div>
     <nav class="space-y-2 mb-auto">
       <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
         <img src="" class="sidebar-icon"> Dashboard
@@ -108,36 +102,20 @@
 </div>
 
 <script>
-  const CLIENT_ID = "1469524111796736072"; // your Discord Client ID
-  const REDIRECT_URI = "https://crypted-nu.vercel.app/"; // use root to avoid 404 on Vercel
+  const CLIENT_ID = "1469524111796736072";
+  const REDIRECT_URI = "https://crypted-nu.vercel.app/";
   const SCOPE = "identify";
 
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
 
-  async function loginWithDiscord() {
+  function loginWithDiscord() {
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
   }
 
-  async function fetchDiscordUser(token) {
-    // This simulates Discord user fetch
-    // Replace with actual backend call if implementing real OAuth
-    return {
-      id: "123456789012345678",
-      username: "TestUser",
-      discriminator: "1234",
-      avatar: "abcdef1234567890abcdef1234567890"
-    };
-  }
-
-  async function handleOAuthLogin() {
-    if (!code) return;
-    try {
-      const token = "SIMULATED_TOKEN"; // backend would exchange code for real token
-      login(); // show dashboard
-    } catch (err) {
-      console.warn("OAuth login failed", err);
-    }
+  function handleOAuthLogin() {
+    if (!code) return; 
+    login(); 
   }
 
   function login() {
@@ -150,8 +128,6 @@
     document.getElementById('dashboard-page').classList.add('hidden');
     document.getElementById('login-page').classList.remove('hidden');
     history.replaceState(null, '', '/');
-    document.getElementById('user-name').textContent = "Immortal";
-    document.getElementById('user-avatar').src = "";
   }
 
   function goToPage(page) {
