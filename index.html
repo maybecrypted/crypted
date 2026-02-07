@@ -1,11 +1,9 @@
-
-You said:
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Login</title>
+  <title>Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: black; color: white; }
@@ -77,10 +75,7 @@ You said:
 
     <div class="flex justify-center gap-4">
       <button onclick="loginWithDiscord()" type="button" class="text-gray-900 bg-gray-100 hover:bg-zinc-400 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-2" viewBox="0 0 16 16">
-          <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"></path>
-        </svg>
-        Login with Discord
+        Enter Dashboard
       </button>
     </div>
   </div>
@@ -94,36 +89,43 @@ You said:
   </div>
   <div class="absolute top-0 -z-20 h-screen w-full bg-[radial-gradient(ellipse_60%_60%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
-  <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto">
-    <div class="mb-3">
-      <div class="flex items-center space-x-3 p-1 pb-4">
-        <img id="user-avatar" src="" class="h-8 w-8 rounded-md">
-        <span id="user-name" class="self-center text-2xl font-semibold whitespace-nowrap">Immortal</span>
+  <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto justify-between">
+    
+    <!-- Top user info -->
+    <div class="mb-4 flex items-center gap-2">
+      <img src="" class="h-8 w-8 rounded-md"> <!-- empty image -->
+      <span id="user-name-top" class="self-center text-2xl font-semibold whitespace-nowrap">Crypted</span>
+    </div>
+
+    <!-- Navigation links -->
+    <nav class="space-y-2 mb-auto">
+      <hr class="border-t border-gray-200 dark:border-gray-700">
+      <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Dashboard
+      </div>
+      <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> VIP Server
+      </div>
+      <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Hyperlink
+      </div>
+    </nav>
+
+    <!-- Bottom settings/logout + profile box -->
+    <div class="space-y-4 mt-4">
+      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Settings
+      </div>
+      <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Log Out
+      </div>
+
+      <!-- Profile Box at bottom -->
+      <div class="mt-4 bg-white/5 p-3 rounded-lg flex items-center gap-2">
+        <img id="bottom-avatar" src="" class="h-10 w-10 rounded-md">
+        <span id="bottom-username" class="text-white font-semibold text-sm"></span>
       </div>
     </div>
-  <nav class="space-y-2 mb-auto">
-      <hr class="border-t border-gray-200 dark:border-gray-700">
-  <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Dashboard
-  </div>
-
-  <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> VIP Server
-  </div>
-
-  <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Hyperlink
-  </div>
-  <hr class="border-t border-gray-200 dark:border-gray-700">
-
-  <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Settings
-  </div>
-  <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Log Out
-  </div>
-</nav>
-
   </div>
 
   <div id="page-content" class="ml-64 relative z-10 flex items-center justify-center h-full">
@@ -140,26 +142,33 @@ You said:
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
 
-  async function loginWithDiscord() {
-    window.location.href = https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE};
+  // Login button triggers OAuth flow
+  function loginWithDiscord() {
+    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
   }
 
+  // Exchange code for token & fetch user info (simulated here for front-end)
   async function fetchDiscordUser(token) {
     const res = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: Bearer ${token} }
+      headers: { Authorization: `Bearer ${token}` }
     });
     return await res.json();
   }
 
   async function handleOAuthLogin() {
     if (!code) return;
-    // Exchange code for token (requires backend, simulate here)
-    // In real setup, call your server endpoint like /auth/discord?code=...
-    const token = "SIMULATED_TOKEN"; // Replace with real token from backend
+    // In a real setup, your backend exchanges code for token
+    const token = "SIMULATED_TOKEN"; // Replace with token from backend
     const user = await fetchDiscordUser(token);
-    login();
-    document.getElementById('user-name').textContent = Crypted;
-    document.getElementById('user-avatar').src = https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png;
+
+    // Update dashboard with Discord user info
+    document.getElementById('user-name-top').textContent = user.username || "Crypted";
+    document.getElementById('bottom-username').textContent = user.username || "Crypted#1234";
+    document.getElementById('bottom-avatar').src = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      : "https://cdn.discordapp.com/embed/avatars/0.png";
+
+    login(); // show dashboard
   }
 
   function login() {
@@ -208,6 +217,6 @@ You said:
   handleOAuthLogin();
 </script>
 
+
 </body>
 </html>
-
