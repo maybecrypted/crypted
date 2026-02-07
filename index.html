@@ -92,36 +92,44 @@
   </div>
   <div class="absolute top-0 -z-20 h-screen w-full bg-[radial-gradient(ellipse_60%_60%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
-  <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto">
-    <div class="mb-3">
-      <div class="flex items-center space-x-3 p-1 pb-4">
-        <img id="user-avatar" src="" class="h-8 w-8 rounded-md">
-        <span id="user-name" class="self-center text-2xl font-semibold whitespace-nowrap">Immortal</span>
+  <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto justify-between">
+    <!-- Top navigation -->
+    <div class="space-y-2">
+      <hr class="border-t border-gray-200 dark:border-gray-700">
+      <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Dashboard
+      </div>
+      <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> VIP Server
+      </div>
+      <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Hyperlink
       </div>
     </div>
-  <nav class="space-y-2 mb-auto">
-      <hr class="border-t border-gray-200 dark:border-gray-700">
-  <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Dashboard
-  </div>
 
-  <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> VIP Server
-  </div>
+    <!-- Bottom settings/logout + profile box -->
+    <div class="space-y-4 mt-4">
+      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Settings
+      </div>
+      <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
+        <img src="" class="sidebar-icon"> Log Out
+      </div>
 
-  <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Hyperlink
-  </div>
-  <hr class="border-t border-gray-200 dark:border-gray-700">
-
-  <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Settings
-  </div>
-  <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
-    <img src="" class="sidebar-icon"> Log Out
-  </div>
-</nav>
-
+      <!-- Profile Box -->
+      <div class="mt-4 bg-white/5 p-3 rounded-lg flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="h-10 w-10 rounded-md">
+          <div class="flex flex-col">
+            <span id="user-name" class="text-white font-semibold text-sm">Crypted</span>
+          </div>
+        </div>
+        <div class="w-full bg-white/20 rounded-full h-2 relative">
+          <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+          <span class="absolute left-0 -top-5 text-white text-xs font-semibold">Level 5</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="page-content" class="ml-64 relative z-10 flex items-center justify-center h-full">
@@ -151,8 +159,6 @@
 
   async function handleOAuthLogin() {
     if (!code) return;
-    // Exchange code for token (requires backend, simulate here)
-    // In real setup, call your server endpoint like /auth/discord?code=...
     const token = "SIMULATED_TOKEN"; // Replace with real token from backend
     const user = await fetchDiscordUser(token);
     login();
