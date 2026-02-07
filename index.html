@@ -99,23 +99,32 @@
         <span id="user-name" class="self-center text-2xl font-semibold whitespace-nowrap">Immortal</span>
       </div>
     </div>
-    <nav class="space-y-2 mb-auto">
-      <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Dashboard
-      </div>
-      <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> VIP Server
-      </div>
-      <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Hyperlink
-      </div>
-      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Settings
-      </div>
-      <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Log Out
-      </div>
-    </nav>
+  <nav class="space-y-2 mb-auto">
+  <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
+    <img src="" class="sidebar-icon"> Dashboard
+  </div>
+  <hr class="border-t border-gray-200 dark:border-gray-700">
+
+  <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
+    <img src="" class="sidebar-icon"> VIP Server
+  </div>
+  <hr class="border-t border-gray-200 dark:border-gray-700">
+
+  <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
+    <img src="" class="sidebar-icon"> Hyperlink
+  </div>
+  <hr class="border-t border-gray-200 dark:border-gray-700">
+
+  <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
+    <img src="" class="sidebar-icon"> Settings
+  </div>
+  <hr class="border-t border-gray-200 dark:border-gray-700">
+
+  <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
+    <img src="" class="sidebar-icon"> Log Out
+  </div>
+</nav>
+
   </div>
 
   <div id="page-content" class="ml-64 relative z-10 flex items-center justify-center h-full">
