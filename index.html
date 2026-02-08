@@ -155,21 +155,19 @@
     return await res.json();
   }
 
-  async function handleOAuthLogin() {
-    if (!code) return;
-    // In a real setup, your backend exchanges code for token
-    const token = "SIMULATED_TOKEN"; // Replace with token from backend
-    const user = await fetchDiscordUser(token);
+async function handleOAuthLogin() {
+  if (!code) return
 
-    // Update dashboard with Discord user info
-    document.getElementById('user-name-top').textContent = user.username || "Crypted";
-    document.getElementById('bottom-username').textContent = user.username || "Crypted#1234";
-    document.getElementById('bottom-avatar').src = user.avatar
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-      : "https://cdn.discordapp.com/embed/avatars/0.png";
+  const res = await fetch(`/api/discord?code=${code}`)
+  const user = await res.json()
 
-    login(); // show dashboard
-  }
+  document.getElementById('user-name-top').textContent = user.username
+  document.getElementById('bottom-username').textContent = user.username
+  document.getElementById('bottom-avatar').src =
+    `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+
+  login()
+}
 
   function login() {
     document.getElementById('login-page').classList.add('hidden');
