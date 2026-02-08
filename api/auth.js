@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     method: 'POST',
     body: new URLSearchParams({
       client_id: '1469524111796736072',
-      client_secret: 'YOUR_CLIENT_SECRET_HERE', // Get this from Discord Dev Portal
+      client_secret: 'NHUUkkcUmD8Ga20PBN1kJKjqsp5bi07j', // Get this from Discord Dev Portal
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: 'https://crypted-nu.vercel.app/dashboard', 
