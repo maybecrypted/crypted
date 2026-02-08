@@ -32,7 +32,6 @@
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
 <div id="login-page" class="h-screen w-screen relative flex items-center justify-center overflow-hidden">
   <div class="absolute inset-0 -z-10"
        style="background-image: radial-gradient(#0d0d0d 1px, transparent 0);
@@ -55,17 +54,17 @@
       <span>
         <pre class="shine-text whitespace-pre overflow-x-auto p-2 rounded-lg bg-black/50 mx-auto" 
              style="font-family: monospace; font-size: 8px; line-height: 1.1; max-width: 100%;">
-                                           /$$                     /$$
-                                          | $$                    | $$
+                                            /$$                     /$$
+                                           | $$                    | $$
   /$$$$$$$  /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$
  /$$_____/ /$$__  $$| $$  | $$ /$$__  $$|_  $$_/   /$$__  $$ /$$__  $$
 | $$      | $$  \__/| $$  | $$| $$  \ $$  | $$    | $$$$$$$$| $$  | $$
 | $$      | $$      | $$  | $$| $$  | $$  | $$ /$$| $$_____/| $$  | $$
 |  $$$$$$$| $$      |  $$$$$$$| $$$$$$$/  |  $$$$/|  $$$$$$$|  $$$$$$$
- \_______/|__/       \____  $$| $$____/    \___/   \_______/ \_______/
-                     /$$  | $$| $$                                    
-                    |  $$$$$$/| $$                                    
-                     \______/ |__/                                    </pre>
+ \_______/|__/       \____  $$| $$____/    \___/    \_______/ \_______/
+                     /$$  | $$| $$                                     
+                    |  $$$$$$/| $$                                     
+                     \______/ |__/                                     </pre>
       </span>
     </h1>
 
@@ -81,7 +80,6 @@
   </div>
 </div>
 
-<!-- DASHBOARD PAGE -->
 <div id="dashboard-page" class="hidden relative h-screen w-screen overflow-hidden">
   <div class="absolute inset-0 -z-10 h-full w-full"
        style="background-image: radial-gradient(#0d0d0d 1px, transparent 0);
@@ -92,34 +90,37 @@
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto justify-between">
     
     <div class="mb-4 flex items-center gap-2">
-      <img src="" class="h-8 w-8 rounded-md">
+      <div class="h-8 w-8 bg-white/10 rounded-md flex items-center justify-center font-bold text-xs">C</div>
       <span id="user-name-top" class="self-center text-2xl font-semibold whitespace-nowrap">Crypted</span>
     </div>
 
     <nav class="space-y-2 mb-auto">
-      <hr class="border-t border-gray-200 dark:border-gray-700">
-      <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Dashboard
+      <hr class="border-t border-white/10 mb-4">
+      <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
+        Dashboard
       </div>
-      <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> VIP Server
+      <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
+        VIP Server
       </div>
-      <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Hyperlink
+      <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
+        Hyperlink
       </div>
     </nav>
 
     <div class="space-y-4 mt-4">
-      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Settings
+      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
+        Settings
       </div>
-      <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer">
-        <img src="" class="sidebar-icon"> Log Out
+      <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-red-500/10 text-red-400 transition">
+        Log Out
       </div>
 
-      <div class="mt-4 bg-white/5 p-3 rounded-lg flex items-center gap-2">
-        <img id="bottom-avatar" src="" class="h-10 w-10 rounded-md">
-        <span id="bottom-username" class="text-white font-semibold text-sm"></span>
+      <div class="mt-4 bg-white/5 p-3 rounded-lg flex items-center gap-3 border border-white/5">
+        <img id="bottom-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="h-10 w-10 rounded-full border border-white/10">
+        <div class="flex flex-col min-w-0">
+          <span id="bottom-username" class="text-white font-semibold text-sm truncate">Loading...</span>
+          <span class="text-white/40 text-[10px] uppercase tracking-wider">User</span>
+        </div>
       </div>
     </div>
   </div>
@@ -141,70 +142,65 @@
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
   }
 
-  async function fetchDiscordUser(token) {
-    const res = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    return await res.json();
-  }
-
   async function handleOAuthLogin() {
     if (!code) return;
-    const token = "SIMULATED_TOKEN";
-    const user = await fetchDiscordUser(token);
 
-    document.getElementById('user-name-top').textContent = user.username || "Crypted";
-    document.getElementById('bottom-username').textContent = user.username || "Crypted#1234";
-    document.getElementById('bottom-avatar').src = user.avatar
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-      : "https://cdn.discordapp.com/embed/avatars/0.png";
+    try {
+      // 1. Fetch from your backend API
+      const response = await fetch(`/api/auth?code=${code}`);
+      const user = await response.json();
 
-    login();
+      if (user.id) {
+        // 2. Set the Username in both spots
+        document.getElementById('user-name-top').textContent = user.username;
+        document.getElementById('bottom-username').textContent = user.username;
+
+        // 3. Set the Avatar
+        const avatarUrl = user.avatar 
+          ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+          : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+        
+        document.getElementById('bottom-avatar').src = avatarUrl;
+
+        login();
+      }
+    } catch (err) {
+      console.error("Authentication failed:", err);
+      alert("Failed to login with Discord.");
+    }
   }
 
   function login() {
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('dashboard-page').classList.remove('hidden');
-    goToPage('dashboard');
+    // Use hash to prevent 404s on Vercel refresh
+    if (!window.location.hash) goToPage('dashboard');
   }
 
   function logout() {
-    document.getElementById('dashboard-page').classList.add('hidden');
-    document.getElementById('login-page').classList.remove('hidden');
-    history.replaceState(null, '', '/login');
+    window.location.href = '/'; // Redirects to base URL and clears the 'code'
   }
 
   function goToPage(page) {
     const content = document.getElementById('page-content');
-    switch(page) {
-      case 'dashboard':
-        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Welcome to Dashboard</h1>';
-        history.pushState(null, '', '/dashboard');
-        break;
-      case 'vip-server':
-        content.innerHTML = '<h1 class="text-white text-4xl font-bold">VIP Server Page</h1>';
-        history.pushState(null, '', '/vip-server');
-        break;
-      case 'hyperlink':
-        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Hyperlink Page</h1>';
-        history.pushState(null, '', '/hyperlink');
-        break;
-      case 'settings':
-        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Settings Page</h1>';
-        history.pushState(null, '', '/settings');
-        break;
-      default:
-        content.innerHTML = '<h1 class="text-white text-4xl font-bold">Unknown Page</h1>';
-        break;
-    }
+    const titles = {
+      'dashboard': 'Welcome to Dashboard',
+      'vip-server': 'VIP Server Page',
+      'hyperlink': 'Hyperlink Page',
+      'settings': 'Settings Page'
+    };
+
+    content.innerHTML = `<h1 class="text-white text-4xl font-bold">${titles[page] || 'Unknown Page'}</h1>`;
+    window.location.hash = page;
   }
 
-  window.addEventListener('popstate', () => {
-    const path = window.location.pathname.replace('/', '');
-    if (path) goToPage(path);
-    else history.replaceState(null, '', '/login');
+  // Handle browser back/forward buttons
+  window.addEventListener('hashchange', () => {
+    const page = window.location.hash.replace('#', '');
+    if (page) goToPage(page);
   });
 
+  // Run on startup
   handleOAuthLogin();
 </script>
 
