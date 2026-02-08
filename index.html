@@ -22,10 +22,6 @@
       0% { background-position: -200% 0; }
       100% { background-position: 200% 0; }
     }
-    .sidebar-icon { width: 20px; height: 20px; margin-right: 8px; }
-    
-    /* Smooth XP Bar Transition */
-    #xp-bar { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
 <body>
@@ -39,7 +35,7 @@
   <div class="w-full max-w-2xl text-center z-10 mt-[-10%]">
     <div class="flex justify-center gap-16 mb-6">
       <div>
-        <div class="text-4xl font-bold">1,204</div>
+        <div class="text-4xl font-bold">1</div>
         <div class="text-sm text-white/80">Total Users</div>
       </div>
       <div>
@@ -49,9 +45,8 @@
     </div>
 
     <h1 class="text-sm font-bold mb-2">
-      <span>
-        <pre class="shine-text whitespace-pre overflow-x-auto p-2 rounded-lg bg-black/50 mx-auto" 
-             style="font-family: monospace; font-size: 8px; line-height: 1.1; max-width: 100%;">
+      <pre class="shine-text whitespace-pre overflow-x-auto p-2 rounded-lg bg-black/50 mx-auto" 
+           style="font-family: monospace; font-size: 8px; line-height: 1.1; max-width: 100%;">
                                             /$$                     /$$
                                            | $$                    | $$
   /$$$$$$$  /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$
@@ -63,7 +58,6 @@
                      /$$  | $$| $$                                     
                     |  $$$$$$/| $$                                     
                      \______/ |__/                                     </pre>
-      </span>
     </h1>
 
     <p class="text-sm text-white/60 mb-12">
@@ -71,7 +65,7 @@
     </p>
 
     <div class="flex justify-center gap-4">
-      <button onclick="loginWithDiscord()" type="button" class="text-gray-900 bg-gray-100 hover:bg-zinc-400 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center transition">
+      <button onclick="loginWithDiscord()" type="button" class="text-gray-900 bg-gray-100 hover:bg-zinc-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center transition-colors">
         Enter Dashboard
       </button>
     </div>
@@ -88,52 +82,45 @@
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto justify-between">
     
     <div>
-      <div class="mb-4 mt-2 flex items-center gap-2">
+      <div class="mb-4 flex items-center gap-2">
         <span class="text-2xl font-bold tracking-tight">Crypted</span>
       </div>
 
-      <nav class="space-y-1">
+      <nav class="space-y-2">
         <hr class="border-t border-white/10 mb-4">
-        <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
+        <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300">
           Dashboard
         </div>
-        <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
+        <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300">
           VIP Server
         </div>
-        <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
+        <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300">
           Hyperlink
         </div>
       </nav>
     </div>
 
     <div class="space-y-4 mt-4">
-      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
+      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300">
         Settings
       </div>
       <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-red-500/10 text-red-400 transition text-sm mb-4">
         Log Out
       </div>
 
-      <div class="bg-black/30 border border-white/10 rounded-xl p-4">
-        <div class="flex items-center gap-3 mb-4">
-          <img id="bottom-avatar" src="" class="h-10 w-10 rounded-lg bg-white/5 border border-white/10">
-          <div class="min-w-0">
-            <h2 id="bottom-username" class="text-sm font-bold truncate text-white">Loading...</h2>
-            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Level <span id="user-level">1</span></p>
+      <div class="bg-black/30 border border-white/10 rounded-lg p-4">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex flex-col min-w-0">
+            <h2 id="bottom-username" class="text-sm font-semibold truncate pr-2 text-white">Loading...</h2>
+            <span class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">Verified Session</span>
           </div>
+          <img id="bottom-avatar" src="" class="h-10 w-10 rounded-full bg-white/5 border border-white/10">
         </div>
-        
-        <div class="space-y-1.5">
-          <div class="flex justify-between text-[10px] text-gray-500 font-medium">
-            <span>XP Progress</span>
-            <span><span id="current-xp">0</span>/100</span>
-          </div>
-          <div class="w-full bg-white/5 rounded-full h-1.5">
-            <div id="xp-bar" class="bg-blue-500 h-full rounded-full" style="width: 0%"></div>
-          </div>
+        <div class="flex justify-between items-center text-[10px]">
+          <span class="text-gray-500 italic">Crypted v1.0</span>
+          <span class="bg-blue-900 text-blue-300 bg-opacity-40 px-2 py-0.5 rounded-full">Active</span>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -154,42 +141,25 @@
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
   }
 
-  // Handle XP and Leveling UI
-  function updateLevelUI() {
-    const level = localStorage.getItem('crypted_level') || 1;
-    const xp = localStorage.getItem('crypted_xp') || 0;
-    
-    document.getElementById('user-level').textContent = level;
-    document.getElementById('current-xp').textContent = xp;
-    document.getElementById('xp-bar').style.width = `${xp}%`;
-  }
-
   function updateUI(user) {
     document.getElementById('bottom-username').textContent = user.username;
     const avatarUrl = user.avatar 
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
       : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
     document.getElementById('bottom-avatar').src = avatarUrl;
-    
-    // Initialize random XP for first time users
-    if (!localStorage.getItem('crypted_xp')) {
-        localStorage.setItem('crypted_xp', "35");
-        localStorage.setItem('crypted_level', "1");
-    }
-    updateLevelUI();
   }
 
   async function handleOAuthLogin() {
     const savedUser = localStorage.getItem('crypted_session');
     
-    // 1. Check persistence
+    // Check persistence first
     if (savedUser) {
       updateUI(JSON.parse(savedUser));
       login();
       return;
     }
 
-    // 2. Handle new login code
+    // Handle new login
     if (code) {
       try {
         const response = await fetch(`/api/auth?code=${code}`);
@@ -215,8 +185,6 @@
 
   function logout() {
     localStorage.removeItem('crypted_session');
-    localStorage.removeItem('crypted_xp');
-    localStorage.removeItem('crypted_level');
     window.location.href = '/'; 
   }
 
@@ -230,13 +198,6 @@
     };
     content.innerHTML = `<h1 class="text-white text-4xl font-bold">${titles[page] || 'Unknown Page'}</h1>`;
     window.location.hash = page;
-    
-    // Add 5 XP for every page visit!
-    let currentXp = parseInt(localStorage.getItem('crypted_xp') || 0);
-    if (currentXp < 100) {
-        localStorage.setItem('crypted_xp', currentXp + 5);
-        updateLevelUI();
-    }
   }
 
   window.addEventListener('hashchange', () => {
