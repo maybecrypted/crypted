@@ -95,7 +95,7 @@
           <img id="bottom-avatar" class="h-10 w-10 rounded-lg border border-white/10">
           <div class="min-w-0">
             <div id="bottom-username" class="text-sm font-bold truncate">Loading...</div>
-            <div id="user-status" class="text-[12px] font-sans font-medium tracking-wide mt-1"></div>
+            <div id="user-status" class="text-[14px] font-sans font-medium tracking-wide mt-1"></div>
           </div>
         </div>
       </div>
@@ -145,6 +145,7 @@
     if (saved) {
       updateUI(JSON.parse(saved))
       login()
+      startStatusRefresh()
       return
     }
 
@@ -156,6 +157,7 @@
         updateUI(user)
         history.replaceState({}, "", "/dashboard")
         login()
+        startStatusRefresh()
       }
     }
   }
@@ -180,6 +182,19 @@
     document.getElementById("page-content").innerHTML =
       `<h1 class="text-4xl font-bold">${titles[page] || "Unknown Page"}</h1>`
     location.hash = page
+  }
+
+  async function refreshStatus() {
+    const saved = localStorage.getItem("crypted_session")
+    if (!saved) return
+    const userId = JSON.parse(saved).id
+    const res = await fetch(`/api/user?userId=${userId}`)
+    const user = await res.json()
+    if (user.id) updateUI(user)
+  }
+
+  function startStatusRefresh() {
+    setInterval(refreshStatus, 15000) // refresh every 15 seconds
   }
 
   handleOAuthLogin()
