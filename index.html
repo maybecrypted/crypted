@@ -119,21 +119,9 @@
           <img id="bottom-avatar" src="" class="h-10 w-10 rounded-lg bg-white/5 border border-white/10">
           <div class="min-w-0">
             <h2 id="bottom-username" class="text-sm font-bold truncate text-white">Loading...</h2>
-            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Level <span id="user-level">1</span></p>
+            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">UserID</p>
           </div>
         </div>
-        
-        <div class="space-y-1.5">
-          <div class="flex justify-between text-[10px] text-gray-500 font-medium">
-            <span>XP Progress</span>
-            <span><span id="current-xp">0</span>/100</span>
-          </div>
-          <div class="w-full bg-white/5 rounded-full h-1.5">
-            <div id="xp-bar" class="bg-blue-500 h-full rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
@@ -152,31 +140,6 @@
 
   function loginWithDiscord() {
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
-  }
-
-  // Handle XP and Leveling UI
-  function updateLevelUI() {
-    const level = localStorage.getItem('crypted_level') || 1;
-    const xp = localStorage.getItem('crypted_xp') || 0;
-    
-    document.getElementById('user-level').textContent = level;
-    document.getElementById('current-xp').textContent = xp;
-    document.getElementById('xp-bar').style.width = `${xp}%`;
-  }
-
-  function updateUI(user) {
-    document.getElementById('bottom-username').textContent = user.username;
-    const avatarUrl = user.avatar 
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
-    document.getElementById('bottom-avatar').src = avatarUrl;
-    
-    // Initialize random XP for first time users
-    if (!localStorage.getItem('crypted_xp')) {
-        localStorage.setItem('crypted_xp', "35");
-        localStorage.setItem('crypted_level', "1");
-    }
-    updateLevelUI();
   }
 
   async function handleOAuthLogin() {
@@ -230,13 +193,6 @@
     };
     content.innerHTML = `<h1 class="text-white text-4xl font-bold">${titles[page] || 'Unknown Page'}</h1>`;
     window.location.hash = page;
-    
-    // Add 5 XP for every page visit!
-    let currentXp = parseInt(localStorage.getItem('crypted_xp') || 0);
-    if (currentXp < 100) {
-        localStorage.setItem('crypted_xp', currentXp + 5);
-        updateLevelUI();
-    }
   }
 
   window.addEventListener('hashchange', () => {
