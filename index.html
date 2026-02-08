@@ -23,7 +23,9 @@
       100% { background-position: 200% 0; }
     }
     .sidebar-icon { width: 20px; height: 20px; margin-right: 8px; }
-    .graph-bar { transition: height 0.3s ease; }
+    
+    /* Smooth XP Bar Transition */
+    #xp-bar { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
 <body>
@@ -37,7 +39,7 @@
   <div class="w-full max-w-2xl text-center z-10 mt-[-10%]">
     <div class="flex justify-center gap-16 mb-6">
       <div>
-        <div class="text-4xl font-bold">1</div>
+        <div class="text-4xl font-bold">1,204</div>
         <div class="text-sm text-white/80">Total Users</div>
       </div>
       <div>
@@ -69,7 +71,7 @@
     </p>
 
     <div class="flex justify-center gap-4">
-      <button onclick="loginWithDiscord()" type="button" class="text-gray-900 bg-gray-100 hover:bg-zinc-400 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+      <button onclick="loginWithDiscord()" type="button" class="text-gray-900 bg-gray-100 hover:bg-zinc-400 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center transition">
         Enter Dashboard
       </button>
     </div>
@@ -86,52 +88,52 @@
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto justify-between">
     
     <div>
-      <div class="mb-4 flex items-center gap-2">
+      <div class="mb-4 mt-2 flex items-center gap-2">
         <span class="text-2xl font-bold tracking-tight">Crypted</span>
       </div>
 
-      <nav class="space-y-2">
+      <nav class="space-y-1">
         <hr class="border-t border-white/10 mb-4">
-        <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
+        <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
           Dashboard
         </div>
-        <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
+        <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
           VIP Server
         </div>
-        <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
+        <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
           Hyperlink
         </div>
       </nav>
     </div>
 
     <div class="space-y-4 mt-4">
-      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
+      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm text-gray-300 hover:text-white">
         Settings
       </div>
       <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-red-500/10 text-red-400 transition text-sm mb-4">
         Log Out
       </div>
 
-      <div class="bg-black/30 border border-white/10 rounded-lg p-4">
-        <div class="flex justify-between items-center mb-2">
-          <h2 id="bottom-username" class="text-sm font-medium truncate pr-2 text-white">Loading...</h2>
-          <img id="bottom-avatar" src="" class="h-6 w-6 rounded-full bg-white/10">
+      <div class="bg-black/30 border border-white/10 rounded-xl p-4">
+        <div class="flex items-center gap-3 mb-4">
+          <img id="bottom-avatar" src="" class="h-10 w-10 rounded-lg bg-white/5 border border-white/10">
+          <div class="min-w-0">
+            <h2 id="bottom-username" class="text-sm font-bold truncate text-white">Loading...</h2>
+            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Level <span id="user-level">1</span></p>
+          </div>
         </div>
-        <div class="text-2xl font-bold mb-2" id="total-visits">1,204</div>
-        <div class="h-12 mb-2 flex items-end space-x-1" id="graph-visits">
-          <div class="bg-blue-400/40 w-full h-4 rounded-t-sm"></div>
-          <div class="bg-blue-400/40 w-full h-8 rounded-t-sm"></div>
-          <div class="bg-blue-400/40 w-full h-6 rounded-t-sm"></div>
-          <div class="bg-blue-400/40 w-full h-10 rounded-t-sm"></div>
-          <div class="bg-blue-400/40 w-full h-5 rounded-t-sm"></div>
-          <div class="bg-blue-400/60 w-full h-9 rounded-t-sm"></div>
-          <div class="bg-blue-500 w-full h-12 rounded-t-sm"></div>
-        </div>
-        <div class="flex justify-between items-center text-[10px]">
-          <span class="text-gray-500" id="today-visits">+12 Today</span>
-          <span class="bg-blue-900 text-blue-300 bg-opacity-40 px-2 py-0.5 rounded-full" id="percent-today-visits">Active</span>
+        
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-[10px] text-gray-500 font-medium">
+            <span>XP Progress</span>
+            <span><span id="current-xp">0</span>/100</span>
+          </div>
+          <div class="w-full bg-white/5 rounded-full h-1.5">
+            <div id="xp-bar" class="bg-blue-500 h-full rounded-full" style="width: 0%"></div>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -152,26 +154,47 @@
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
   }
 
+  // Handle XP and Leveling UI
+  function updateLevelUI() {
+    const level = localStorage.getItem('crypted_level') || 1;
+    const xp = localStorage.getItem('crypted_xp') || 0;
+    
+    document.getElementById('user-level').textContent = level;
+    document.getElementById('current-xp').textContent = xp;
+    document.getElementById('xp-bar').style.width = `${xp}%`;
+  }
+
   function updateUI(user) {
     document.getElementById('bottom-username').textContent = user.username;
     const avatarUrl = user.avatar 
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
       : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
     document.getElementById('bottom-avatar').src = avatarUrl;
+    
+    // Initialize random XP for first time users
+    if (!localStorage.getItem('crypted_xp')) {
+        localStorage.setItem('crypted_xp', "35");
+        localStorage.setItem('crypted_level', "1");
+    }
+    updateLevelUI();
   }
 
   async function handleOAuthLogin() {
     const savedUser = localStorage.getItem('crypted_session');
+    
+    // 1. Check persistence
     if (savedUser) {
       updateUI(JSON.parse(savedUser));
       login();
       return;
     }
 
+    // 2. Handle new login code
     if (code) {
       try {
         const response = await fetch(`/api/auth?code=${code}`);
         const user = await response.json();
+
         if (user.id) {
           localStorage.setItem('crypted_session', JSON.stringify(user));
           updateUI(user);
@@ -192,6 +215,8 @@
 
   function logout() {
     localStorage.removeItem('crypted_session');
+    localStorage.removeItem('crypted_xp');
+    localStorage.removeItem('crypted_level');
     window.location.href = '/'; 
   }
 
@@ -205,6 +230,13 @@
     };
     content.innerHTML = `<h1 class="text-white text-4xl font-bold">${titles[page] || 'Unknown Page'}</h1>`;
     window.location.hash = page;
+    
+    // Add 5 XP for every page visit!
+    let currentXp = parseInt(localStorage.getItem('crypted_xp') || 0);
+    if (currentXp < 100) {
+        localStorage.setItem('crypted_xp', currentXp + 5);
+        updateLevelUI();
+    }
   }
 
   window.addEventListener('hashchange', () => {
