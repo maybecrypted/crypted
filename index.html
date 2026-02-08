@@ -91,13 +91,11 @@
 
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto justify-between">
     
-    <!-- Top user info -->
     <div class="mb-4 flex items-center gap-2">
-      <img src="" class="h-8 w-8 rounded-md"> <!-- empty image -->
+      <img src="" class="h-8 w-8 rounded-md">
       <span id="user-name-top" class="self-center text-2xl font-semibold whitespace-nowrap">Crypted</span>
     </div>
 
-    <!-- Navigation links -->
     <nav class="space-y-2 mb-auto">
       <hr class="border-t border-gray-200 dark:border-gray-700">
       <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer">
@@ -111,7 +109,6 @@
       </div>
     </nav>
 
-    <!-- Bottom settings/logout + profile box -->
     <div class="space-y-4 mt-4">
       <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer">
         <img src="" class="sidebar-icon"> Settings
@@ -120,7 +117,6 @@
         <img src="" class="sidebar-icon"> Log Out
       </div>
 
-      <!-- Profile Box at bottom -->
       <div class="mt-4 bg-white/5 p-3 rounded-lg flex items-center gap-2">
         <img id="bottom-avatar" src="" class="h-10 w-10 rounded-md">
         <span id="bottom-username" class="text-white font-semibold text-sm"></span>
@@ -138,16 +134,13 @@
   const REDIRECT_URI = "https://crypted-nu.vercel.app/dashboard"; 
   const SCOPE = "identify";
 
-  // Check if Discord redirected back with code
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
 
-  // Login button triggers OAuth flow
   function loginWithDiscord() {
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
   }
 
-  // Exchange code for token & fetch user info (simulated here for front-end)
   async function fetchDiscordUser(token) {
     const res = await fetch("https://discord.com/api/users/@me", {
       headers: { Authorization: `Bearer ${token}` }
@@ -155,19 +148,19 @@
     return await res.json();
   }
 
-async function handleOAuthLogin() {
-  if (!code) return
+  async function handleOAuthLogin() {
+    if (!code) return;
+    const token = "SIMULATED_TOKEN";
+    const user = await fetchDiscordUser(token);
 
-  const res = await fetch(`/api/discord?code=${code}`)
-  const user = await res.json()
+    document.getElementById('user-name-top').textContent = user.username || "Crypted";
+    document.getElementById('bottom-username').textContent = user.username || "Crypted#1234";
+    document.getElementById('bottom-avatar').src = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      : "https://cdn.discordapp.com/embed/avatars/0.png";
 
-  document.getElementById('user-name-top').textContent = user.username
-  document.getElementById('bottom-username').textContent = user.username
-  document.getElementById('bottom-avatar').src =
-    `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-
-  login()
-}
+    login();
+  }
 
   function login() {
     document.getElementById('login-page').classList.add('hidden');
@@ -214,7 +207,6 @@ async function handleOAuthLogin() {
 
   handleOAuthLogin();
 </script>
-
 
 </body>
 </html>
