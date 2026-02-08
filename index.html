@@ -156,30 +156,17 @@
   }
 
 async function handleOAuthLogin() {
-  if (!code) {
-    // For local testing - remove this when backend is ready
-    console.log("No code found. Waiting for OAuth redirect...");
-    return;
-  }
+  if (!code) return
 
-  try {
-    const res = await fetch(`/api/discord?code=${code}`)
-    const user = await res.json()
+  const res = await fetch(`/api/discord?code=${code}`)
+  const user = await res.json()
 
-    if (user.error) {
-      console.error("Error fetching user:", user.error)
-      return
-    }
+  document.getElementById('user-name-top').textContent = user.username
+  document.getElementById('bottom-username').textContent = user.username
+  document.getElementById('bottom-avatar').src =
+    `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
 
-    document.getElementById('user-name-top').textContent = user.username
-    document.getElementById('bottom-username').textContent = user.username
-    document.getElementById('bottom-avatar').src =
-      `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-
-    login()
-  } catch (error) {
-    console.error("OAuth login failed:", error)
-  }
+  login()
 }
 
   function login() {
