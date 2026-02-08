@@ -95,9 +95,7 @@
           <img id="bottom-avatar" class="h-10 w-10 rounded-lg border border-white/10">
           <div class="min-w-0">
             <div id="bottom-username" class="text-sm font-bold truncate">Loading...</div>
-              <div class="text-[8px] text-white font-normal uppercase tracking-widest">
-              <span id="user-id"></span>
-            </div>
+            <div id="user-status" class="text-[12px] font-sans font-medium tracking-wide mt-1"></div>
           </div>
         </div>
       </div>
@@ -121,9 +119,21 @@
       `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`
   }
 
+  function getStatusText(status) {
+    switch(status) {
+      case "online": return { text: "Online", color: "green" }
+      case "dnd": return { text: "Do Not Disturb", color: "red" }
+      case "idle": return { text: "Idle", color: "orange" }
+      default: return { text: "Offline", color: "gray" }
+    }
+  }
+
   function updateUI(user) {
     document.getElementById("bottom-username").textContent = user.username
-    document.getElementById("user-id").textContent = user.id
+    const status = getStatusText(user.status)
+    const statusEl = document.getElementById("user-status")
+    statusEl.textContent = status.text
+    statusEl.style.color = status.color
     document.getElementById("bottom-avatar").src =
       user.avatar
         ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
