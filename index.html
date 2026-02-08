@@ -12,12 +12,7 @@
       white-space: pre;
       overflow-x: auto;
       color: transparent;
-      background: linear-gradient(
-        100deg,
-        #ffffff 45%,
-        #636363 50%,
-        #ffffff 55%
-      );
+      background: linear-gradient(100deg, #ffffff 45%, #636363 50%, #ffffff 55%);
       background-clip: text;
       -webkit-background-clip: text;
       background-size: 200% 100%;
@@ -28,6 +23,8 @@
       100% { background-position: 200% 0; }
     }
     .sidebar-icon { width: 20px; height: 20px; margin-right: 8px; }
+    /* Simple bar height animation for the graph */
+    .graph-bar { transition: height 0.3s ease; }
   </style>
 </head>
 <body>
@@ -89,37 +86,51 @@
 
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 z-50 overflow-y-auto justify-between">
     
-    <div class="mb-4 flex items-center gap-2">
-      <div class="h-8 w-8 bg-white/10 rounded-md flex items-center justify-center font-bold text-xs">C</div>
-      <span id="user-name-top" class="self-center text-2xl font-semibold whitespace-nowrap">Crypted</span>
+    <div>
+      <div class="mb-4 flex items-center gap-2">
+        <span class="text-2xl font-bold tracking-tight">Crypted</span>
+      </div>
+
+      <nav class="space-y-2">
+        <hr class="border-t border-white/10 mb-4">
+        <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
+          Dashboard
+        </div>
+        <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
+          VIP Server
+        </div>
+        <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
+          Hyperlink
+        </div>
+      </nav>
     </div>
 
-    <nav class="space-y-2 mb-auto">
-      <hr class="border-t border-white/10 mb-4">
-      <div onclick="goToPage('dashboard')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
-        Dashboard
-      </div>
-      <div onclick="goToPage('vip-server')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
-        VIP Server
-      </div>
-      <div onclick="goToPage('hyperlink')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
-        Hyperlink
-      </div>
-    </nav>
-
     <div class="space-y-4 mt-4">
-      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition">
+      <div onclick="goToPage('settings')" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-white/5 transition text-sm">
         Settings
       </div>
-      <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-red-500/10 text-red-400 transition">
+      <div onclick="logout()" class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-red-500/10 text-red-400 transition text-sm mb-4">
         Log Out
       </div>
 
-      <div class="mt-4 bg-white/5 p-3 rounded-lg flex items-center gap-3 border border-white/5">
-        <img id="bottom-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="h-10 w-10 rounded-full border border-white/10">
-        <div class="flex flex-col min-w-0">
-          <span id="bottom-username" class="text-white font-semibold text-sm truncate">Loading...</span>
-          <span class="text-white/40 text-[10px] uppercase tracking-wider">User</span>
+      <div class="bg-black/30 border border-white/10 rounded-lg p-4">
+        <div class="flex justify-between items-center mb-2">
+          <h2 id="bottom-username" class="text-sm font-medium truncate pr-2 text-white">Loading...</h2>
+          <img id="bottom-avatar" src="" class="h-6 w-6 rounded-full bg-white/10">
+        </div>
+        <div class="text-2xl font-bold mb-2" id="total-visits">1,204</div>
+        <div class="h-12 mb-2 flex items-end space-x-1" id="graph-visits">
+          <div class="bg-blue-400/40 w-full h-4 rounded-t-sm"></div>
+          <div class="bg-blue-400/40 w-full h-8 rounded-t-sm"></div>
+          <div class="bg-blue-400/40 w-full h-6 rounded-t-sm"></div>
+          <div class="bg-blue-400/40 w-full h-10 rounded-t-sm"></div>
+          <div class="bg-blue-400/40 w-full h-5 rounded-t-sm"></div>
+          <div class="bg-blue-400/60 w-full h-9 rounded-t-sm"></div>
+          <div class="bg-blue-500 w-full h-12 rounded-t-sm"></div>
+        </div>
+        <div class="flex justify-between items-center text-[10px]">
+          <span class="text-gray-500" id="today-visits">+12 Today</span>
+          <span class="bg-blue-900 text-blue-300 bg-opacity-40 px-2 py-0.5 rounded-full" id="percent-today-visits">Active</span>
         </div>
       </div>
     </div>
@@ -142,43 +153,53 @@
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
   }
 
+  function updateUI(user) {
+    document.getElementById('bottom-username').textContent = user.username;
+    const avatarUrl = user.avatar 
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+    document.getElementById('bottom-avatar').src = avatarUrl;
+  }
+
   async function handleOAuthLogin() {
-    if (!code) return;
+    // 1. Check if user is already in LocalStorage
+    const savedUser = localStorage.getItem('crypted_session');
+    if (savedUser) {
+      updateUI(JSON.parse(savedUser));
+      login();
+      return;
+    }
 
-    try {
-      // 1. Fetch from your backend API
-      const response = await fetch(`/api/auth?code=${code}`);
-      const user = await response.json();
+    // 2. If no saved session, check for URL code
+    if (code) {
+      try {
+        const response = await fetch(`/api/auth?code=${code}`);
+        const user = await response.json();
 
-      if (user.id) {
-        // 2. Set the Username in both spots
-        document.getElementById('user-name-top').textContent = user.username;
-        document.getElementById('bottom-username').textContent = user.username;
-
-        // 3. Set the Avatar
-        const avatarUrl = user.avatar 
-          ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-          : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
-        
-        document.getElementById('bottom-avatar').src = avatarUrl;
-
-        login();
+        if (user.id) {
+          // Save session
+          localStorage.setItem('crypted_session', JSON.stringify(user));
+          updateUI(user);
+          
+          // Clean URL
+          window.history.replaceState({}, document.title, "/dashboard");
+          login();
+        }
+      } catch (err) {
+        console.error("Auth failed:", err);
       }
-    } catch (err) {
-      console.error("Authentication failed:", err);
-      alert("Failed to login with Discord.");
     }
   }
 
   function login() {
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('dashboard-page').classList.remove('hidden');
-    // Use hash to prevent 404s on Vercel refresh
     if (!window.location.hash) goToPage('dashboard');
   }
 
   function logout() {
-    window.location.href = '/'; // Redirects to base URL and clears the 'code'
+    localStorage.removeItem('crypted_session');
+    window.location.href = '/'; 
   }
 
   function goToPage(page) {
@@ -189,18 +210,15 @@
       'hyperlink': 'Hyperlink Page',
       'settings': 'Settings Page'
     };
-
     content.innerHTML = `<h1 class="text-white text-4xl font-bold">${titles[page] || 'Unknown Page'}</h1>`;
     window.location.hash = page;
   }
 
-  // Handle browser back/forward buttons
   window.addEventListener('hashchange', () => {
     const page = window.location.hash.replace('#', '');
     if (page) goToPage(page);
   });
 
-  // Run on startup
   handleOAuthLogin();
 </script>
 
