@@ -42,26 +42,6 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .scrollbox {
-      max-height: 500px;
-      overflow-y: auto;
-      background: rgba(255,255,255,0.05);
-      padding: 10px;
-      border-radius: 6px;
-      margin-top: 10px;
-      font-family: monospace;
-      font-size: 12px;
-    }
-    .btn {
-      background: white;
-      color: black;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 5px;
-      font-weight: bold;
-    }
-    .btn:hover { background: #ddd; }
   </style>
 </head>
 <body>
@@ -121,8 +101,8 @@
       <nav class="space-y-1">
         <div onclick="goToPage('dashboard')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">Dashboard</div>
         <div onclick="goToPage('vip')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">VIP Server</div>
-        <div onclick="goToPage('sniper')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">Username Sniper</div>
         <div onclick="goToPage('hyperlink')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">Hyperlink</div>
+        <div onclick="goToPage('sniper')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">Username Sniper</div>
       </nav>
     </div>
 
@@ -140,7 +120,7 @@
     </div>
   </div>
 
-  <div id="page-content" class="ml-64 flex items-start justify-center h-full overflow-auto p-6">
+  <div id="page-content" class="ml-64 flex items-center justify-center h-full overflow-auto">
     <h1 class="text-4xl font-bold">Welcome to Dashboard</h1>
   </div>
 </div>
@@ -150,6 +130,7 @@ const CLIENT_ID = "1469524111796736072";
 const REDIRECT_URI = "https://crypted-nu.vercel.app/dashboard";
 const SCOPE = "identify";
 
+const code = new URLSearchParams(window.location.search).get("code");
 let searchTimeout;
 
 function loginWithDiscord() {
@@ -164,7 +145,6 @@ function updateUI(user) {
 }
 
 async function handleOAuthLogin() {
-  const code = new URLSearchParams(window.location.search).get("code");
   const saved = localStorage.getItem("crypted_session");
   if (saved) {
     updateUI(JSON.parse(saved));
@@ -193,98 +173,45 @@ function logout() {
   window.location.href = "/";
 }
 
-function goToPage(page) {
-  const content = document.getElementById("page-content");
-  if(page === "sniper") {
-    content.innerHTML = `
-      <div class="w-full max-w-3xl">
-        <h2 class="text-2xl font-bold mb-4">Roblox Username Sniper</h2>
-        <label class="block mb-1">Choose option:</label>
-        <select id="sniperOption" class="bg-zinc-900 border border-white/10 p-2 rounded w-full mb-2">
-          <option value="real">Real word usernames</option>
-          <option value="short">Short mixed (ua0y, bc94)</option>
-          <option value="og">OG / Legacy usernames</option>
-          <option value="file">Load from .txt file</option>
-        </select>
-        <label class="block mb-1">Number of usernames to generate:</label>
-        <input type="number" id="sniperCount" value="10" class="bg-zinc-900 border border-white/10 p-2 rounded w-full mb-2">
-        <button class="btn" onclick="generateUsernames()">Check</button>
-        <div class="scrollbox mt-4" id="sniperResults">Results will appear here...</div>
-      </div>
-    `;
-  } else {
-    content.innerHTML = `<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;
-  }
-}
-
-// --- Username generator functions
-const adjectives = ["lovely","flying","metal","shadow","red","dark","silent","golden","fast","wild"];
-const nouns = ["fool","storm","bite","dust","blade","girl","boy","wolf","star","bubble"];
-const verbs = ["flying","burning","running","howling","blazing","shining"];
-
-function genReal() {
-  let style = Math.floor(Math.random()*4)+1;
-  let name = "";
-  if(style===1) name = adjectives[Math.floor(Math.random()*adjectives.length)] + nouns[Math.floor(Math.random()*nouns.length)];
-  else if(style===2) name = nouns[Math.floor(Math.random()*nouns.length)] + nouns[Math.floor(Math.random()*nouns.length)];
-  else if(style===3) name = verbs[Math.floor(Math.random()*verbs.length)] + nouns[Math.floor(Math.random()*nouns.length)];
-  else name = adjectives[Math.floor(Math.random()*adjectives.length)] + String.fromCharCode(97 + Math.floor(Math.random()*26));
-  if(Math.random()<0.25) name += Math.floor(Math.random()*10);
-  return name.substring(0,20);
-}
-
-function genShort() {
-  let chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let len = 4 + Math.floor(Math.random()*2);
-  let name = "";
-  for(let i=0;i<len;i++) name += chars[Math.floor(Math.random()*chars.length)];
-  return name;
-}
-
-function genOG() {
-  const consonants = "bcdfghjklmnpqrstvwxyz";
-  const vowels = "aeiou";
-  let style = Math.floor(Math.random()*6)+1;
-  if(style===1) return consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)]+consonants[Math.floor(Math.random()*consonants.length)];
-  if(style===2) return consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)]+consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)];
-  if(style===3) return vowels[Math.floor(Math.random()*vowels.length)]+consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)];
-  if(style===4) return String.fromCharCode(97 + Math.floor(Math.random()*26))+"_"+String.fromCharCode(97 + Math.floor(Math.random()*26));
-  if(style===5) { let s=""; for(let i=0;i<3;i++) s+=String.fromCharCode(97 + Math.floor(Math.random()*26)); return s; }
-  let s=""; for(let i=0;i<4;i++) s+=String.fromCharCode(97 + Math.floor(Math.random()*26)); return s;
-}
-
+// ---- Username Sniper Helper ----
 async function checkUsername(username) {
   try {
-    const res = await fetch(`https://auth.roblox.com/v1/usernames/validate?username=${username}&birthday=2001-09-11`);
-    if(res.ok) {
+    const res = await fetch(`/api/sniper?username=${encodeURIComponent(username)}`);
+    if (res.ok) {
       const json = await res.json();
       return json.code;
     }
-  } catch(e) { return null; }
+  } catch (e) {
+    return null;
+  }
   return null;
 }
 
-async function generateUsernames() {
-  const option = document.getElementById("sniperOption").value;
-  const count = parseInt(document.getElementById("sniperCount").value)||10;
-  const resultsBox = document.getElementById("sniperResults");
-  resultsBox.innerHTML = "Generating...";
-  let names = [];
-  for(let i=0;i<count;i++) {
-    if(option==="real") names.push(genReal());
-    else if(option==="short") names.push(genShort());
-    else if(option==="og") names.push(genOG());
-    else names.push("TXT option not implemented in-browser");
-  }
-  resultsBox.innerHTML = "";
-  for(const n of names) {
-    resultsBox.innerHTML += `<div>${n} - <span id="status-${n}">Checking...</span></div>`;
-    const code = await checkUsername(n);
-    const statusEl = document.getElementById(`status-${n}`);
-    if(code===0) statusEl.innerText="VALID"; 
-    else if(code===1) statusEl.innerText="TAKEN"; 
-    else if(code===2) statusEl.innerText="CENSORED"; 
-    else statusEl.innerText="ERROR";
+function goToPage(page) {
+  const content = document.getElementById("page-content");
+  if (page === 'sniper') {
+    content.innerHTML = `
+      <div class="p-8 w-full max-w-5xl">
+        <h2 class="text-3xl font-bold mb-6">Roblox Username Sniper</h2>
+        <input id="username-input" type="text" placeholder="Enter username..." class="bg-zinc-900 border border-white/10 p-3 rounded-md w-64 mb-4">
+        <button id="check-btn" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-md">Check</button>
+        <div id="result" class="mt-4 text-white/80"></div>
+      </div>
+    `;
+    document.getElementById("check-btn").addEventListener("click", async () => {
+      const username = document.getElementById("username-input").value.trim();
+      if (!username) return;
+      document.getElementById("result").textContent = "Checking...";
+      const code = await checkUsername(username);
+      let text;
+      if (code === 0) text = `[VALID] ${username}`;
+      else if (code === 1) text = `[TAKEN] ${username}`;
+      else if (code === 2) text = `[CENSORED] ${username}`;
+      else text = `[ERROR] ${username}`;
+      document.getElementById("result").textContent = text;
+    });
+  } else {
+    content.innerHTML = `<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;
   }
 }
 
