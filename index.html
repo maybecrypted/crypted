@@ -42,6 +42,26 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    .scrollbox {
+      max-height: 500px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .btn {
+      background: white;
+      color: black;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+    .btn:hover { background: #ddd; }
   </style>
 </head>
 <body>
@@ -101,6 +121,7 @@
       <nav class="space-y-1">
         <div onclick="goToPage('dashboard')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">Dashboard</div>
         <div onclick="goToPage('vip')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">VIP Server</div>
+        <div onclick="goToPage('sniper')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">Username Sniper</div>
         <div onclick="goToPage('hyperlink')" class="p-2 rounded-lg cursor-pointer hover:bg-white/5 text-sm text-gray-300 hover:text-white">Hyperlink</div>
       </nav>
     </div>
@@ -119,206 +140,155 @@
     </div>
   </div>
 
-  <div id="page-content" class="ml-64 flex items-center justify-center h-full overflow-auto">
+  <div id="page-content" class="ml-64 flex items-start justify-center h-full overflow-auto p-6">
     <h1 class="text-4xl font-bold">Welcome to Dashboard</h1>
   </div>
 </div>
 
 <script>
-  const CLIENT_ID = "1469524111796736072";
-  const REDIRECT_URI = "https://crypted-nu.vercel.app/dashboard";
-  const SCOPE = "identify";
+const CLIENT_ID = "1469524111796736072";
+const REDIRECT_URI = "https://crypted-nu.vercel.app/dashboard";
+const SCOPE = "identify";
 
-  // PROXY CONFIGURATION (Must match vercel.json)
-  const ROBLOX_SEARCH_PROXY = "/roblox-search-api/search-api/omni-search";
-  const ROBLOX_GAMES_PROXY = "/roblox-games-api/v1/games";
-  const ROBLOX_THUMBNAILS_PROXY = "/roblox-thumbnails-api/v1/games/icons";
-  const VIP_SERVER_CODE = "61577596024483571254213742725726";
+let searchTimeout;
 
+function loginWithDiscord() {
+  window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
+}
+
+function updateUI(user) {
+  document.getElementById("bottom-username").textContent = user.username;
+  document.getElementById("bottom-avatar").src = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+}
+
+async function handleOAuthLogin() {
   const code = new URLSearchParams(window.location.search).get("code");
-  let searchTimeout;
-  let currentGames = [];
-
-  function loginWithDiscord() {
-    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
+  const saved = localStorage.getItem("crypted_session");
+  if (saved) {
+    updateUI(JSON.parse(saved));
+    login();
+    return;
   }
-
-  function updateUI(user) {
-    document.getElementById("bottom-username").textContent = user.username;
-    document.getElementById("bottom-avatar").src = user.avatar
-        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-        : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
-  }
-
-  async function handleOAuthLogin() {
-    const saved = localStorage.getItem("crypted_session");
-    if (saved) {
-      updateUI(JSON.parse(saved));
+  if (code) {
+    const res = await fetch(`/api/auth?code=${code}`);
+    const user = await res.json();
+    if (user.id) {
+      localStorage.setItem("crypted_session", JSON.stringify(user));
+      updateUI(user);
+      history.replaceState({}, "", "/dashboard");
       login();
-      return;
-    }
-    if (code) {
-      const res = await fetch(`/api/auth?code=${code}`);
-      const user = await res.json();
-      if (user.id) {
-        localStorage.setItem("crypted_session", JSON.stringify(user));
-        updateUI(user);
-        history.replaceState({}, "", "/dashboard");
-        login();
-      }
     }
   }
+}
 
-  function login() {
-    document.getElementById("login-page").classList.add("hidden");
-    document.getElementById("dashboard-page").classList.remove("hidden");
-  }
+function login() {
+  document.getElementById("login-page").classList.add("hidden");
+  document.getElementById("dashboard-page").classList.remove("hidden");
+}
 
-  function logout() {
-    localStorage.removeItem("crypted_session");
-    window.location.href = "/";
-  }
+function logout() {
+  localStorage.removeItem("crypted_session");
+  window.location.href = "/";
+}
 
-  function formatNumber(num) {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toString();
-  }
-
-  function copyContentGames(url) {
-    const domain = document.getElementById('domainSelect').value;
-    const finalUrl = url.replace('DOMAIN', domain);
-    navigator.clipboard.writeText(finalUrl).then(() => {
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-      notification.textContent = 'Link copied to clipboard!';
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 2000);
-    });
-  }
-
-  async function searchRobloxGames(query) {
-    try {
-      // 1. Search using Proxy
-      const searchRes = await fetch(`${ROBLOX_SEARCH_PROXY}?searchQuery=${encodeURIComponent(query)}&pageType=games&sessionId=temp`);
-      if (!searchRes.ok) throw new Error('Search failed');
-      const searchData = await searchRes.json();
-      
-      const games = [];
-      if (searchData.data) {
-        searchData.data.slice(0, 30).forEach(result => {
-          if (result.type === 'Game' && result.universalSearchData) {
-            games.push({
-              universeId: result.universalSearchData.universeId,
-              name: result.universalSearchData.name || 'Unknown Game',
-              playerCount: result.universalSearchData.playerCount || 0
-            });
-          }
-        });
-      }
-
-      if (games.length > 0) {
-        const ids = games.map(g => g.universeId).join(',');
-        
-        // 2. Details & 3. Thumbnails using Proxy
-        const [detailsRes, thumbRes] = await Promise.all([
-          fetch(`${ROBLOX_GAMES_PROXY}?universeIds=${ids}`),
-          fetch(`${ROBLOX_THUMBNAILS_PROXY}?universeIds=${ids}&size=512x512&format=Png&isCircular=false`)
-        ]);
-
-        const detailsData = await detailsRes.json();
-        const thumbData = await thumbRes.json();
-
-        return games.map(game => {
-          const detail = detailsData.data?.find(d => d.id === game.universeId) || {};
-          const thumb = thumbData.data?.find(t => t.targetId === game.universeId) || {};
-          const rootPlaceId = detail.rootPlaceId || game.universeId;
-          const gameUrlName = (detail.name || game.name).replace(/[^a-zA-Z0-9]/g, '-');
-          
-          return {
-            ...game,
-            imageUrl: thumb.imageUrl || 'https://via.placeholder.com/256',
-            likes: detail.favoritedCount || 0,
-            visits: detail.visits || 0,
-            link: `https://DOMAIN/games/${rootPlaceId}/${gameUrlName}?privateServerLinkCode=${VIP_SERVER_CODE}`
-          };
-        });
-      }
-      return [];
-    } catch (error) {
-      console.error('Error:', error);
-      return [];
-    }
-  }
-
-  function displayGames(games) {
-    const grid = document.getElementById('gameCardGrid');
-    if (games.length === 0) {
-      grid.innerHTML = `<div class="col-span-full py-20 text-center text-white/60">No games found.</div>`;
-      return;
-    }
-    grid.innerHTML = games.map(game => `
-      <div class="relative bg-black/30 border border-white/10 rounded-lg p-4 flex gap-4 items-center">
-        <button class="absolute -top-2 -right-2 bg-zinc-800 border border-white/20 p-1 rounded-md text-xs" onclick="copyContentGames('${game.link}')">Copy</button>
-        <img src="${game.imageUrl}" class="w-24 h-24 rounded-lg object-cover">
-        <div class="flex-1 min-w-0">
-          <h4 class="font-bold truncate">${game.name}</h4>
-          <div class="flex gap-3 mt-2 text-xs text-white/70">
-            <div><strong>${formatNumber(game.playerCount)}</strong> Active</div>
-            <div><strong>${formatNumber(game.visits)}</strong> Visits</div>
-          </div>
-        </div>
+function goToPage(page) {
+  const content = document.getElementById("page-content");
+  if(page === "sniper") {
+    content.innerHTML = `
+      <div class="w-full max-w-3xl">
+        <h2 class="text-2xl font-bold mb-4">Roblox Username Sniper</h2>
+        <label class="block mb-1">Choose option:</label>
+        <select id="sniperOption" class="bg-zinc-900 border border-white/10 p-2 rounded w-full mb-2">
+          <option value="real">Real word usernames</option>
+          <option value="short">Short mixed (ua0y, bc94)</option>
+          <option value="og">OG / Legacy usernames</option>
+          <option value="file">Load from .txt file</option>
+        </select>
+        <label class="block mb-1">Number of usernames to generate:</label>
+        <input type="number" id="sniperCount" value="10" class="bg-zinc-900 border border-white/10 p-2 rounded w-full mb-2">
+        <button class="btn" onclick="generateUsernames()">Check</button>
+        <div class="scrollbox mt-4" id="sniperResults">Results will appear here...</div>
       </div>
-    `).join('');
+    `;
+  } else {
+    content.innerHTML = `<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;
   }
+}
 
-  async function handleSearch(query) {
-    if (query.trim().length < 2) return;
-    const grid = document.getElementById('gameCardGrid');
-    grid.innerHTML = `<div class="col-span-full py-20 flex justify-center"><div class="loading-spinner"></div></div>`;
-    const games = await searchRobloxGames(query);
-    displayGames(games);
-  }
+// --- Username generator functions
+const adjectives = ["lovely","flying","metal","shadow","red","dark","silent","golden","fast","wild"];
+const nouns = ["fool","storm","bite","dust","blade","girl","boy","wolf","star","bubble"];
+const verbs = ["flying","burning","running","howling","blazing","shining"];
 
-  function setupSearch() {
-    const searchInput = document.getElementById('search');
-    if (!searchInput) return;
-    searchInput.addEventListener('input', (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => handleSearch(e.target.value), 600);
-    });
-  }
+function genReal() {
+  let style = Math.floor(Math.random()*4)+1;
+  let name = "";
+  if(style===1) name = adjectives[Math.floor(Math.random()*adjectives.length)] + nouns[Math.floor(Math.random()*nouns.length)];
+  else if(style===2) name = nouns[Math.floor(Math.random()*nouns.length)] + nouns[Math.floor(Math.random()*nouns.length)];
+  else if(style===3) name = verbs[Math.floor(Math.random()*verbs.length)] + nouns[Math.floor(Math.random()*nouns.length)];
+  else name = adjectives[Math.floor(Math.random()*adjectives.length)] + String.fromCharCode(97 + Math.floor(Math.random()*26));
+  if(Math.random()<0.25) name += Math.floor(Math.random()*10);
+  return name.substring(0,20);
+}
 
-  function goToPage(page) {
-    const content = document.getElementById("page-content");
-    if (page === 'vip') {
-      content.innerHTML = `
-        <div class="p-8 w-full max-w-5xl">
-          <div class="flex justify-between items-end mb-8">
-            <div>
-              <h2 class="text-3xl font-bold">VIP Server Link Search</h2>
-              <p class="text-white/50">Generate proxied links for any Roblox game.</p>
-            </div>
-            <div class="flex gap-2">
-              <select id="domainSelect" class="bg-zinc-900 border border-white/10 p-3 rounded-md">
-                <option value="roblox.com.ge">roblox.com.ge</option>
-                <option value="robiox.com.af">robiox.com.af</option>
-              </select>
-              <input type="text" id="search" placeholder="Search games..." class="bg-zinc-900 border border-white/10 p-3 rounded-md w-64">
-            </div>
-          </div>
-          <div id="gameCardGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div class="col-span-full py-20 text-center text-white/30 italic">Type a game name to begin...</div>
-          </div>
-        </div>
-      `;
-      setupSearch();
-    } else {
-      content.innerHTML = `<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;
+function genShort() {
+  let chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let len = 4 + Math.floor(Math.random()*2);
+  let name = "";
+  for(let i=0;i<len;i++) name += chars[Math.floor(Math.random()*chars.length)];
+  return name;
+}
+
+function genOG() {
+  const consonants = "bcdfghjklmnpqrstvwxyz";
+  const vowels = "aeiou";
+  let style = Math.floor(Math.random()*6)+1;
+  if(style===1) return consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)]+consonants[Math.floor(Math.random()*consonants.length)];
+  if(style===2) return consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)]+consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)];
+  if(style===3) return vowels[Math.floor(Math.random()*vowels.length)]+consonants[Math.floor(Math.random()*consonants.length)]+vowels[Math.floor(Math.random()*vowels.length)];
+  if(style===4) return String.fromCharCode(97 + Math.floor(Math.random()*26))+"_"+String.fromCharCode(97 + Math.floor(Math.random()*26));
+  if(style===5) { let s=""; for(let i=0;i<3;i++) s+=String.fromCharCode(97 + Math.floor(Math.random()*26)); return s; }
+  let s=""; for(let i=0;i<4;i++) s+=String.fromCharCode(97 + Math.floor(Math.random()*26)); return s;
+}
+
+async function checkUsername(username) {
+  try {
+    const res = await fetch(`https://auth.roblox.com/v1/usernames/validate?username=${username}&birthday=2001-09-11`);
+    if(res.ok) {
+      const json = await res.json();
+      return json.code;
     }
-  }
+  } catch(e) { return null; }
+  return null;
+}
 
-  handleOAuthLogin();
+async function generateUsernames() {
+  const option = document.getElementById("sniperOption").value;
+  const count = parseInt(document.getElementById("sniperCount").value)||10;
+  const resultsBox = document.getElementById("sniperResults");
+  resultsBox.innerHTML = "Generating...";
+  let names = [];
+  for(let i=0;i<count;i++) {
+    if(option==="real") names.push(genReal());
+    else if(option==="short") names.push(genShort());
+    else if(option==="og") names.push(genOG());
+    else names.push("TXT option not implemented in-browser");
+  }
+  resultsBox.innerHTML = "";
+  for(const n of names) {
+    resultsBox.innerHTML += `<div>${n} - <span id="status-${n}">Checking...</span></div>`;
+    const code = await checkUsername(n);
+    const statusEl = document.getElementById(`status-${n}`);
+    if(code===0) statusEl.innerText="VALID"; 
+    else if(code===1) statusEl.innerText="TAKEN"; 
+    else if(code===2) statusEl.innerText="CENSORED"; 
+    else statusEl.innerText="ERROR";
+  }
+}
+
+handleOAuthLogin();
 </script>
 </body>
 </html>
