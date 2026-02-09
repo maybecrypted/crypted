@@ -27,9 +27,7 @@
       -webkit-appearance: none;
       margin: 0;
     }
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
+    input[type="number"] { -moz-appearance: textfield; }
     .loading-spinner {
       border: 3px solid rgba(255, 255, 255, 0.1);
       border-top: 3px solid white;
@@ -48,8 +46,7 @@
 
 <div id="login-page" class="h-screen w-screen relative flex items-center justify-center overflow-hidden">
   <div class="absolute inset-0 -z-10"
-       style="background-image: radial-gradient(#0d0d0d 1px, transparent 0);
-              background-size: 16px 16px;"></div>
+       style="background-image: radial-gradient(#0d0d0d 1px, transparent 0); background-size: 16px 16px;"></div>
   <div class="absolute top-0 -z-20 h-screen w-full bg-[radial-gradient(ellipse_60%_60%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
   <div class="w-full max-w-2xl text-center z-10 mt-[-10%]">
@@ -91,8 +88,7 @@
 
 <div id="dashboard-page" class="hidden relative h-screen w-screen overflow-hidden">
   <div class="absolute inset-0 -z-10"
-       style="background-image: radial-gradient(#0d0d0d 1px, transparent 0);
-              background-size: 16px 16px;"></div>
+       style="background-image: radial-gradient(#0d0d0d 1px, transparent 0); background-size: 16px 16px;"></div>
   <div class="absolute top-0 -z-20 h-screen w-full bg-[radial-gradient(ellipse_60%_60%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 justify-between">
@@ -131,7 +127,40 @@ const REDIRECT_URI = "https://crypted-nu.vercel.app/dashboard";
 const SCOPE = "identify";
 
 const code = new URLSearchParams(window.location.search).get("code");
-let searchTimeout;
+
+const adjectives = ["lovely","dark","silent","golden","fast","wild","epic","icy","fiery","mystic","legendary","shadow"];
+const nouns = ["wolf","dragon","storm","ghost","blade","king","queen","night","fire","shadow","fang","phoenix"];
+const verbs = ["flying","burning","running","howling","blazing","shining","jumping","soaring"];
+
+function r(a){return a[Math.floor(Math.random()*a.length)]}
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function genReal(){
+  const t=ri(1,4);
+  let n="";
+  if(t===1)n=r(adjectives)+r(nouns);
+  if(t===2)n=r(nouns)+r(nouns);
+  if(t===3)n=r(verbs)+r(nouns);
+  if(t===4)n=r(adjectives)+String.fromCharCode(97+ri(0,25));
+  if(Math.random()<0.25)n+=ri(0,9);
+  return n.slice(0,20);
+}
+
+function genShort(){
+  const c="abcdefghijklmnopqrstuvwxyz0123456789";
+  let s="";
+  for(let i=0;i<ri(4,5);i++)s+=c[ri(0,c.length-1)];
+  return s;
+}
+
+async function checkUsername(u){
+  try{
+    const res = await fetch(`/api/sniper?username=${encodeURIComponent(u)}`);
+    if(!res.ok) return null;
+    const json = await res.json();
+    return json.code;
+  }catch(e){return null;}
+}
 
 function loginWithDiscord() {
   window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
@@ -141,21 +170,17 @@ function updateUI(user) {
   document.getElementById("bottom-username").textContent = user.username;
   document.getElementById("bottom-avatar").src = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id)%5}.png`;
 }
 
 async function handleOAuthLogin() {
   const saved = localStorage.getItem("crypted_session");
-  if (saved) {
-    updateUI(JSON.parse(saved));
-    login();
-    return;
-  }
-  if (code) {
+  if(saved){updateUI(JSON.parse(saved));login();return;}
+  if(code){
     const res = await fetch(`/api/auth?code=${code}`);
     const user = await res.json();
-    if (user.id) {
-      localStorage.setItem("crypted_session", JSON.stringify(user));
+    if(user.id){
+      localStorage.setItem("crypted_session",JSON.stringify(user));
       updateUI(user);
       history.replaceState({}, "", "/dashboard");
       login();
@@ -163,55 +188,48 @@ async function handleOAuthLogin() {
   }
 }
 
-function login() {
+function login(){
   document.getElementById("login-page").classList.add("hidden");
   document.getElementById("dashboard-page").classList.remove("hidden");
+  goToPage("sniper");
 }
 
-function logout() {
+function logout(){
   localStorage.removeItem("crypted_session");
-  window.location.href = "/";
+  window.location.href="/";
 }
 
-// ---- Username Sniper Helper ----
-async function checkUsername(username) {
-  try {
-    const res = await fetch(`/api/sniper?username=${encodeURIComponent(username)}`);
-    if (res.ok) {
-      const json = await res.json();
-      return json.code;
-    }
-  } catch (e) {
-    return null;
-  }
-  return null;
-}
-
-function goToPage(page) {
+function goToPage(page){
   const content = document.getElementById("page-content");
-  if (page === 'sniper') {
-    content.innerHTML = `
+  if(page==="sniper"){
+    content.innerHTML=`
       <div class="p-8 w-full max-w-5xl">
         <h2 class="text-3xl font-bold mb-6">Roblox Username Sniper</h2>
-        <input id="username-input" type="text" placeholder="Enter username..." class="bg-zinc-900 border border-white/10 p-3 rounded-md w-64 mb-4">
-        <button id="check-btn" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-md">Check</button>
-        <div id="result" class="mt-4 text-white/80"></div>
+        <select id="mode" class="bg-zinc-900 border border-white/10 p-2 rounded mb-4">
+          <option value="real">Real word usernames</option>
+          <option value="short">Short mixed</option>
+        </select>
+        <input id="count" type="number" value="20" class="bg-zinc-900 border border-white/10 p-2 rounded w-24 ml-2">
+        <button id="start" class="ml-4 bg-green-600 px-4 py-2 rounded">Start</button>
+        <pre id="out" class="mt-6 bg-black/50 p-4 rounded text-sm"></pre>
       </div>
     `;
-    document.getElementById("check-btn").addEventListener("click", async () => {
-      const username = document.getElementById("username-input").value.trim();
-      if (!username) return;
-      document.getElementById("result").textContent = "Checking...";
-      const code = await checkUsername(username);
-      let text;
-      if (code === 0) text = `[VALID] ${username}`;
-      else if (code === 1) text = `[TAKEN] ${username}`;
-      else if (code === 2) text = `[CENSORED] ${username}`;
-      else text = `[ERROR] ${username}`;
-      document.getElementById("result").textContent = text;
-    });
+    document.getElementById("start").onclick=async()=>{
+      const mode = document.getElementById("mode").value;
+      const count = parseInt(document.getElementById("count").value);
+      const out = document.getElementById("out");
+      out.textContent="";
+      for(let i=0;i<count;i++){
+        const name = mode==="real"?genReal():genShort();
+        const code = await checkUsername(name);
+        if(code===0) out.textContent += `[VALID] ${name}\n`;
+        else if(code===1) out.textContent += `[TAKEN] ${name}\n`;
+        else if(code===2) out.textContent += `[CENSORED] ${name}\n`;
+        else out.textContent += `[ERROR] ${name}\n`;
+      }
+    }
   } else {
-    content.innerHTML = `<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;
+    content.innerHTML=`<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;
   }
 }
 
