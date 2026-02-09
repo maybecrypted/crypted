@@ -1,5 +1,20 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    {
+      "source": "/roblox-search-api/:path*",
+      "destination": "https://apis.roblox.com/:path*"
+    },
+    {
+      "source": "/roblox-games-api/:path*",
+      "destination": "https://games.roblox.com/:path*"
+    },
+    {
+      "source": "/roblox-thumbnails-api/:path*",
+      "destination": "https://thumbnails.roblox.com/:path*"
+    },
+    { 
+      "source": "/(.*)", 
+      "destination": "/" 
+    }
   ]
 }
