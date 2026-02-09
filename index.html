@@ -1,52 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: black; color: white; }
-    pre.shine-text {
-      font-size: 10px;
-      white-space: pre;
-      overflow-x: auto;
-      color: transparent;
-      background: linear-gradient(100deg, #ffffff 45%, #636363 50%, #ffffff 55%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      background-size: 200% 100%;
-      animation: shine 10s linear infinite;
-    }
-    @keyframes shine {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type="number"] { -moz-appearance: textfield; }
-    .loading-spinner {
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-top: 3px solid white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: black; color: white; }
+pre.shine-text {
+  font-size: 10px;
+  white-space: pre;
+  overflow-x: auto;
+  color: transparent;
+  background: linear-gradient(100deg, #ffffff 45%, #636363 50%, #ffffff 55%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-size: 200% 100%;
+  animation: shine 10s linear infinite;
+}
+@keyframes shine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+.loading-spinner {
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 </head>
 <body>
 
 <div id="login-page" class="h-screen w-screen relative flex items-center justify-center overflow-hidden">
-  <div class="absolute inset-0 -z-10"
-       style="background-image: radial-gradient(#0d0d0d 1px, transparent 0); background-size: 16px 16px;"></div>
+  <div class="absolute inset-0 -z-10" style="background-image: radial-gradient(#0d0d0d 1px, transparent 0); background-size: 16px 16px;"></div>
   <div class="absolute top-0 -z-20 h-screen w-full bg-[radial-gradient(ellipse_60%_60%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
   <div class="w-full max-w-2xl text-center z-10 mt-[-10%]">
@@ -61,8 +60,7 @@
       </div>
     </div>
 
-    <pre class="shine-text whitespace-pre overflow-x-auto p-2 rounded-lg bg-black/50 mx-auto"
-         style="font-family: monospace; font-size: 8px; line-height: 1.1; max-width: 100%;">
+    <pre class="shine-text whitespace-pre overflow-x-auto p-2 rounded-lg bg-black/50 mx-auto" style="font-family: monospace; font-size: 8px; line-height: 1.1; max-width: 100%;">
                                             /$$                    /$$
                                            | $$                    | $$
   /$$$$$$$  /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$
@@ -87,8 +85,7 @@
 </div>
 
 <div id="dashboard-page" class="hidden relative h-screen w-screen overflow-hidden">
-  <div class="absolute inset-0 -z-10"
-       style="background-image: radial-gradient(#0d0d0d 1px, transparent 0); background-size: 16px 16px;"></div>
+  <div class="absolute inset-0 -z-10" style="background-image: radial-gradient(#0d0d0d 1px, transparent 0); background-size: 16px 16px;"></div>
   <div class="absolute top-0 -z-20 h-screen w-full bg-[radial-gradient(ellipse_60%_60%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
   <div class="bg-black w-64 border-r border-white/10 p-4 flex flex-col fixed inset-y-0 left-0 justify-between">
@@ -116,8 +113,8 @@
     </div>
   </div>
 
-  <div id="page-content" class="ml-64 flex items-center justify-center h-full overflow-auto">
-    <h1 class="text-4xl font-bold">Welcome to Dashboard</h1>
+  <div id="page-content" class="ml-64 flex flex-col items-center justify-start h-full overflow-auto p-8">
+    <h1 class="text-4xl font-bold mb-6">Welcome to Dashboard</h1>
   </div>
 </div>
 
@@ -125,112 +122,74 @@
 const CLIENT_ID = "1469524111796736072";
 const REDIRECT_URI = "https://crypted-nu.vercel.app/dashboard";
 const SCOPE = "identify";
-
 const code = new URLSearchParams(window.location.search).get("code");
 
-const adjectives = ["lovely","dark","silent","golden","fast","wild","epic","icy","fiery","mystic","legendary","shadow"];
-const nouns = ["wolf","dragon","storm","ghost","blade","king","queen","night","fire","shadow","fang","phoenix"];
-const verbs = ["flying","burning","running","howling","blazing","shining","jumping","soaring"];
+// Username generator arrays
+const adjectives=["lovely","dark","silent","golden","fast","wild","epic","icy","fiery","mystic","legendary","shadow"];
+const nouns=["wolf","dragon","storm","ghost","blade","king","queen","night","fire","shadow","fang","phoenix"];
+const verbs=["flying","burning","running","howling","blazing","shining","jumping","soaring"];
 
-function r(a){return a[Math.floor(Math.random()*a.length)]}
-function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function r(a){return a[Math.floor(Math.random()*a.length)];}
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function genReal(){const t=ri(1,4);let n="";if(t===1)n=r(adjectives)+r(nouns);if(t===2)n=r(nouns)+r(nouns);if(t===3)n=r(verbs)+r(nouns);if(t===4)n=r(adjectives)+String.fromCharCode(97+ri(0,25));if(Math.random()<0.25)n+=ri(0,9);return n.slice(0,20);}
+function genShort(){const c="abcdefghijklmnopqrstuvwxyz0123456789";let s="";for(let i=0;i<ri(4,5);i++)s+=c[ri(0,c.length-1)];return s;}
+async function checkUsername(u){try{const res=await fetch(`/api/sniper?username=${encodeURIComponent(u)}`);if(!res.ok)return null;const json=await res.json();return json.code;}catch(e){return null;}}
 
-function genReal(){
-  const t=ri(1,4);
-  let n="";
-  if(t===1)n=r(adjectives)+r(nouns);
-  if(t===2)n=r(nouns)+r(nouns);
-  if(t===3)n=r(verbs)+r(nouns);
-  if(t===4)n=r(adjectives)+String.fromCharCode(97+ri(0,25));
-  if(Math.random()<0.25)n+=ri(0,9);
-  return n.slice(0,20);
-}
-
-function genShort(){
-  const c="abcdefghijklmnopqrstuvwxyz0123456789";
-  let s="";
-  for(let i=0;i<ri(4,5);i++)s+=c[ri(0,c.length-1)];
-  return s;
-}
-
-async function checkUsername(u){
-  try{
-    const res = await fetch(`/api/sniper?username=${encodeURIComponent(u)}`);
-    if(!res.ok) return null;
-    const json = await res.json();
-    return json.code;
-  }catch(e){return null;}
-}
-
-function loginWithDiscord() {
-  window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
-}
-
-function updateUI(user) {
-  document.getElementById("bottom-username").textContent = user.username;
-  document.getElementById("bottom-avatar").src = user.avatar
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id)%5}.png`;
-}
-
-async function handleOAuthLogin() {
-  const saved = localStorage.getItem("crypted_session");
-  if(saved){updateUI(JSON.parse(saved));login();return;}
-  if(code){
-    const res = await fetch(`/api/auth?code=${code}`);
-    const user = await res.json();
-    if(user.id){
-      localStorage.setItem("crypted_session",JSON.stringify(user));
-      updateUI(user);
-      history.replaceState({}, "", "/dashboard");
-      login();
-    }
-  }
-}
-
-function login(){
-  document.getElementById("login-page").classList.add("hidden");
-  document.getElementById("dashboard-page").classList.remove("hidden");
-  goToPage("sniper");
-}
-
-function logout(){
-  localStorage.removeItem("crypted_session");
-  window.location.href="/";
-}
+function loginWithDiscord(){window.location.href=`https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;}
+function updateUI(user){document.getElementById("bottom-username").textContent=user.username;document.getElementById("bottom-avatar").src=user.avatar?`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`:`https://cdn.discordapp.com/embed/avatars/${parseInt(user.id)%5}.png`;}
+async function handleOAuthLogin(){const saved=localStorage.getItem("crypted_session");if(saved){updateUI(JSON.parse(saved));login();return;}if(code){const res=await fetch(`/api/auth?code=${code}`);const user=await res.json();if(user.id){localStorage.setItem("crypted_session",JSON.stringify(user));updateUI(user);history.replaceState({}, "", "/dashboard");login();}}}
+function login(){document.getElementById("login-page").classList.add("hidden");document.getElementById("dashboard-page").classList.remove("hidden");goToPage("sniper");}
+function logout(){localStorage.removeItem("crypted_session");window.location.href="/";}
 
 function goToPage(page){
-  const content = document.getElementById("page-content");
+  const content=document.getElementById("page-content");
   if(page==="sniper"){
     content.innerHTML=`
-      <div class="p-8 w-full max-w-5xl">
+      <div class="w-full max-w-4xl flex flex-col items-start">
         <h2 class="text-3xl font-bold mb-6">Roblox Username Sniper</h2>
-        <select id="mode" class="bg-zinc-900 border border-white/10 p-2 rounded mb-4">
-          <option value="real">Real word usernames</option>
-          <option value="short">Short mixed</option>
-        </select>
-        <input id="count" type="number" value="20" class="bg-zinc-900 border border-white/10 p-2 rounded w-24 ml-2">
-        <button id="start" class="ml-4 bg-green-600 px-4 py-2 rounded">Start</button>
-        <pre id="out" class="mt-6 bg-black/50 p-4 rounded text-sm"></pre>
+        <div class="flex items-center gap-2 mb-4 flex-wrap">
+          <select id="mode" class="bg-zinc-900 border border-white/10 p-2 rounded">
+            <option value="real">Real word usernames</option>
+            <option value="short">Short mixed</option>
+          </select>
+          <input id="count" type="number" value="20" class="bg-zinc-900 border border-white/10 p-2 rounded w-24" min="1">
+          <button id="start" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-white">Start</button>
+        </div>
+        <div class="w-full h-[400px] overflow-auto bg-black/50 rounded p-4">
+          <table class="w-full text-left table-auto border-collapse">
+            <thead>
+              <tr class="border-b border-white/20">
+                <th class="px-2 py-1 text-white/80">Username</th>
+                <th class="px-2 py-1 text-white/80">Status</th>
+              </tr>
+            </thead>
+            <tbody id="out"></tbody>
+          </table>
+        </div>
       </div>
     `;
     document.getElementById("start").onclick=async()=>{
-      const mode = document.getElementById("mode").value;
-      const count = parseInt(document.getElementById("count").value);
-      const out = document.getElementById("out");
-      out.textContent="";
+      const mode=document.getElementById("mode").value;
+      const count=parseInt(document.getElementById("count").value);
+      const out=document.getElementById("out");
+      out.innerHTML="";
       for(let i=0;i<count;i++){
-        const name = mode==="real"?genReal():genShort();
-        const code = await checkUsername(name);
-        if(code===0) out.textContent += `[VALID] ${name}\n`;
-        else if(code===1) out.textContent += `[TAKEN] ${name}\n`;
-        else if(code===2) out.textContent += `[CENSORED] ${name}\n`;
-        else out.textContent += `[ERROR] ${name}\n`;
+        const name=mode==="real"?genReal():genShort();
+        const code=await checkUsername(name);
+        const tr=document.createElement("tr");
+        const tdName=document.createElement("td");
+        tdName.textContent=name;
+        tdName.className="px-2 py-1";
+        const tdStatus=document.createElement("td");
+        tdStatus.className="px-2 py-1 font-bold";
+        if(code===0){tdStatus.textContent="VALID";tdStatus.classList.add("text-green-500");}
+        else if(code===1){tdStatus.textContent="TAKEN";tdStatus.classList.add("text-white");}
+        else if(code===2){tdStatus.textContent="CENSORED";tdStatus.classList.add("text-red-500");}
+        else{tdStatus.textContent="ERROR";tdStatus.classList.add("text-yellow-400");}
+        tr.appendChild(tdName);tr.appendChild(tdStatus);out.appendChild(tr);
       }
-    }
-  } else {
-    content.innerHTML=`<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;
-  }
+    };
+  }else{content.innerHTML=`<h1 class="text-4xl font-bold capitalize">${page} Page</h1>`;}
 }
 
 handleOAuthLogin();
